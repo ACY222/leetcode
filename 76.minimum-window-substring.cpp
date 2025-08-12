@@ -17,7 +17,7 @@ public:
     // minSize as the size of the substring, start as the offset
     // left, right as the sides of sliding window
     // matches as the count about how many chars two maps match
-    int minSize {INT_MAX}, start {0}, left {0}, right {0}, matches;
+    int minSize {INT_MAX}, start {0}, left {0}, right {0}, matches {0};
     for (int i {0}; i < t.size(); ++i) {
       ++charsWeWant[t[i]];
     }
@@ -26,7 +26,7 @@ public:
       char c {s[right]};    // this is the character to be added
       ++right;
       if (charsWeWant.count(c)) {
-        ++charsWeWant[c];
+        ++charsWeFound[c];
         if (charsWeWant[c] == charsWeFound[c]) {
           ++matches;
         }
@@ -45,10 +45,11 @@ public:
           if (charsWeWant[d] == charsWeFound[d]) {
             --matches;
           }
+          --charsWeFound[d];
         }
       }
     }
-    return s.substr(start, minSize);
+    return minSize == INT_MAX ? "" : s.substr(start, minSize);
   }
 };
 // @leet end
