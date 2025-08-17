@@ -6,45 +6,24 @@ using std::string;
 class Solution {
 public:
   string longestPalindrome(string s) {
-    string longestSubstring {s[0]};
-    int middle {0}, left {0}, right {0}, offset {1}, maxLength {1};
-    // case 1, the number is even
-    while (middle < s.size()) {
-      int length {0};
-      left = middle;
-      right = middle + 1;
-      while (right < s.size() && left >= 0 && s[right] == s[left]) {
-        // length increase by 2
-        length += 2;
-        // move right forward, left backward
-        ++right;
-        --left;
-      }
-      if (maxLength < length) {
-        maxLength = length;
-        longestSubstring = s.substr(left + 1, length);
-      }
-      ++middle;
+    string res {};
+    for (int i = 0; i < s.size(); ++i) {
+      // use i as single center
+      string s1 {palindromic(s, i, i)};
+      // use i and i + 1 as double center
+      string s2 {palindromic(s, i, i + 1)};
+      res = res.size() > s1.size() ? res : s1;
+      res = res.size() > s2.size() ? res : s2;
     }
-    // case 2, the number is odd
-    middle = 1;
-    offset = 2;
-    while (middle < s.size()) {
-      int length {1};
-      left = middle - 1;
-      right = middle + 1;
-      while (right < s.size() && left >= 0 && s[right] == s[left]) {
-        length += 2;
-        ++right;
-        --left;
-      }
-      if (maxLength < length) {
-        maxLength = length;
-        longestSubstring = s.substr(left + 1, length);
-      }
-      ++middle;
+    return res;
+  }
+private:
+  string palindromic(string s, int left, int right) {
+    while (left >= 0 && right < s.size() && s[left] == s[right]) {
+      ++right;
+      --left;
     }
-    return longestSubstring;
+    return s.substr(left + 1, right - left - 1);
   }
 };
 // @leet end
