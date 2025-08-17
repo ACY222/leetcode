@@ -14,21 +14,21 @@ public:
     // the length of the substring is s1.size(), so only the offset matters
     // need contains what we want, and window contains what we have
     unordered_map<char, int> need {}, window {};
+    int left {0}, right {0};
     // initialize the map need and window
-    for (int i {0}; i < s1.size(); ++i) {
-      ++need[s1[i]];
-      ++window[s2[i]];
+    for (; right < s1.size(); ++right) {
+      ++need[s1[right]];
+      ++window[s2[right]];
     }
-    for (int offset = s1.size(); offset < s2.size(); ++offset) {
+    for (; right < s2.size(); ++right, ++left) {
       // if two map match, return true
       if (need == window) {
         return true;
       }
-      char toDelete {s2[offset - s1.size()]}, toInsert {s2[offset]};
-      ++window[toInsert];
-      --window[toDelete];
-      if (window[toDelete] == 0) {
-        window.erase(toDelete);
+      ++window[s2[right]];
+      --window[s2[left]];
+      if (window[s2[left]] == 0) {
+        window.erase(s2[left]);
       }
     }
     if (need == window) {
