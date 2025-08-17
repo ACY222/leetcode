@@ -1,9 +1,9 @@
 // @leet start
 #include <string>
-#include <vector>
+#include <array>
 
 using std::string;
-using std::vector;
+using std::array;
 
 class Solution {
 public:
@@ -13,9 +13,9 @@ public:
     }
     // the length of the substring is s1.size(), so only the offset matters
     // need contains what we want, and window contains what we have
-    vector<int> need(26, 0), window(26, 0);
+    array<int, 26> need {0}, window {0};
     int left {0}, right {0};
-    // initialize the vectors and then compare between them
+    // initialize the arrays and then compare between them
     for (; right < s1.size(); ++right) {
       ++need[s1[right] - 'a'];
       ++window[s2[right] - 'a'];
