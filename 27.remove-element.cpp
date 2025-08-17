@@ -11,7 +11,7 @@ public:
     }
     int slow {0}, fast {0};
     while (fast < nums.size()) {
-      // if we find a val in nums, we need to find another element to replace
+      // if we nums[fast] is not val, assign it to position slow
       if (nums[fast] != val) {
         nums[slow++] = nums[fast];
       }
