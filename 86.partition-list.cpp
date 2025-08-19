@@ -20,43 +20,24 @@
 class Solution {
 public:
   ListNode* partition(ListNode* head, int x) {
-    if (head == nullptr) {
-      return head;
-    }
-    // 1 points to the nodes less than x, and 2 points to the nodes geq than x
-    ListNode *left1 {head}, *left2 {head}, *right {head};
-    // try to find the first node with val < x
-    while (left1 != nullptr && left1->val >= x) {
-      left1 = left1->next;
-    }
-    // try to find the first node with val >= x
-    while (left2 != nullptr && left2->val < x) {
-      left2 = left2->next;
-    }
-    // head and head2 point to the beginning of two separate lists
-    // if all the elements are less than x or geq to x, just return head
-    if (!left1 || !left2) {
-      return head;
-    }
-    // otherwise, if both of them are not nullptr
-    head = left1;
-    ListNode *head2 = left2;
-    while (right != nullptr) {
-      if (right != left1 && right != left2) {
-        if (right->val < x) {
-          left1->next = right;
-          left1 = left1->next;
-        }
-        else {
-          left2->next = right;
-          left2 = left2->next;
-        }
+    // dummy1 is the pseudo-head for the values less than x
+    // dummy2 is for the values >= x
+    ListNode dummy1(-1), dummy2(-1);
+    ListNode *p1 {&dummy1}, *p2 {&dummy2}, *p {head};
+    while (p != nullptr) {
+      if (p->val < x) {
+        p1->next = p;
+        p1 = p1->next;
       }
-      right = right->next;
+      else {
+        p2->next = p;
+        p2 = p2->next;
+      }
+      p = p->next;
     }
-    left1->next = head2;
-    left2->next = nullptr;
-    return head;
+    p1->next = dummy2.next;
+    p2->next = nullptr;
+    return dummy1.next;
   }
 };
 // @leet end
