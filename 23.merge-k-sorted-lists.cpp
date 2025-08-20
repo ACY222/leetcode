@@ -24,9 +24,6 @@ using std::vector;
 class Solution {
 public:
   ListNode* mergeKLists(vector<ListNode*>& lists) {
-    if (lists.size() == 1) {
-      return lists[0];
-    }
     ListNode *res { nullptr };
     for (int i = 0; i < lists.size(); ++i) {
       res = mergeTwoLists(res, lists[i]);
