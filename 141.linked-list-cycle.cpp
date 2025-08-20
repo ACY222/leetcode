@@ -7,22 +7,19 @@
  *     ListNode(int x) : val(x), next(NULL) {}
  * };
  */
-#include <set>
+#include <unordered_set>
 
-using std::set;
+using std::unordered_set;
 
 class Solution {
 public:
   bool hasCycle(ListNode *head) {
     // record the listnode we find
-    set<ListNode*> nodeWeFound {};
+    unordered_set<ListNode*> nodeWeFound {};
     ListNode *p {head};
     while (p != nullptr) {
-      // if we have found this node before
-      // we find it twice so there must be cycles
-      // but how to compare two node? by their val and next?
-      // then how to compare the next
-      // countless recursion!
+      // set compares them by their memory
+      // address, so it won't use their val and next pointers.
       if (nodeWeFound.count(p)) {
         return true;
       }
