@@ -18,44 +18,38 @@
 // };
 
 #include <vector>
+#include <queue>
 
 using std::vector;
+using std::priority_queue;
 
 class Solution {
 public:
+  // using priority queue to find the min value of the head
   ListNode* mergeKLists(vector<ListNode*>& lists) {
-    ListNode *res { nullptr };
-    for (int i = 0; i < lists.size(); ++i) {
-      res = mergeTwoLists(res, lists[i]);
+    if (lists.empty()) {
+      return nullptr;
     }
-    return res;
-  }
-private:
-  ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
-    ListNode dummy(-1), *p {&dummy};
-    ListNode *p1 = list1, *p2 = list2;
-    // if both of them are not nullptr
-    while (p1 != nullptr && p2 != nullptr) {
-      // link the node with smaller val to p->next
-      if (p1->val <= p2->val) {
-        p->next = p1;
-        p1 = p1->next;
+    ListNode *dummy { new ListNode(-1) }, *p { dummy };
+    // small root heap
+    auto compare_func = [](ListNode* a, ListNode *b) { return a->val > b->val; };
+    priority_queue<ListNode*, vector<ListNode*>, decltype(compare_func)>
+      pq(compare_func);
+    for (auto head : lists) {
+      if (head != nullptr) {
+        pq.push(head);
       }
-      else {
-        p->next = p2;
-        p2 = p2->next;
-      }
-      // move p forward
+    }
+    while (!pq.empty()) {
+      ListNode *node { pq.top() };
+      pq.pop();
+      p->next = node;
       p = p->next;
+      if (node->next != nullptr) {
+        pq.push(node->next);
+      }
     }
-    // now one/two of them are nullptr
-    if (p1 != nullptr) {
-      p->next = p1;
-    }
-    if (p2 != nullptr) {
-      p->next = p2;
-    }
-    return dummy.next;
+    return dummy->next;
   }
 };
 // @leet end
