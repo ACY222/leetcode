@@ -1,40 +1,35 @@
 // @leet start
-#include <unordered_map>
+#include <queue>
 #include <vector>
 using std::vector;
-using std::unordered_map;
+using std::queue;
 class Solution {
 public:
   bool canReach(vector<int>& arr, int start) {
-    // we have reached this element and failed, now we reach it again, so failed
-    if (flag[start] == true) {
-      return false;
-    }
+    // use the vector flag to show if we have visited this element
+    vector<bool> flag(arr.size(), false);
+    // use the queue q to record the elements we just visited
+    queue<int> q;
+    q.push(start);
     flag[start] = true;
-    // no, I should solve this in above layer, so it won't overflow
-    if (start < 0 || start >= arr.size()) {
-      return false;
-    }
-    // if the value is 0, we have reached the destination
-    if (arr[start] == 0) {
-      return true;
-    }
-    if (start - arr[start] < 0) {
-      if (start + arr[start] >= arr.size()) {
-        return false;
+    while (!q.empty()) {
+      int pos { q.front() };
+      if (arr[pos] == 0) {
+        return true;
       }
-      return canReach(arr, start + arr[start]);
-    }
-    else {
-      if (start + arr[start] >= arr.size()) {
-        return canReach(arr, start - arr[start]);
+      q.pop();
+      // if the index we can reach is valid and we haven't visited it
+      int index1 { pos - arr[pos] }, index2 { pos + arr[pos] };
+      if (index1 >= 0 && flag[index1] == false) {
+        q.push(index1);
+        flag[index1] = true;
       }
-      return canReach(arr, start - arr[start]) || canReach(arr, start + arr[start]);
+      if (index2 < arr.size() && flag[index2] == false) {
+        q.push(index2);
+        flag[index2] = true;
+      }
     }
+    return false;
   }
-private:
-  // using this map to record if we have reached this element, so that we can
-  // avoid visiting one element again and again
-  unordered_map<int, bool> flag;
 };
 // @leet end
