@@ -1,27 +1,23 @@
 // @leet start
+#include <algorithm>
 #include <vector>
 using std::vector;
+using std::max;
 class Solution {
 public:
   int jump(vector<int>& nums) {
-    if (nums.size() == 1) {
-      return 0;
-    }
-    return jumpFromGivenPosition(nums, 0);
-  }
-private:
-  int jumpFromGivenPosition(vector<int>& nums, int index) {
-    if (index + nums[index] >= nums.size() - 1) {
-      return 1;
-    }
-    int maxStep {index + nums[index]}, nextIndex {index};
-    for (int i = 1; i <= nums[index]; ++i) {
-      if (index + i + nums[index + i] > maxStep) {
-        maxStep = index + i + nums[index + i];
-        nextIndex = index + i;
+    int steps {0}, maxReach {0}, currentEnd {0};
+    // if i == nums.size() - 1, it means we currentEnd(last maxReach) >
+    // nums.size(). So we have already arrived the end
+    for (int i = 0; i < nums.size() - 1; ++i) {
+      maxReach = max(maxReach, i + nums[i]);
+      // currentEnd is the maxReach we can jump to in last round
+      if (i == currentEnd) {
+        currentEnd = maxReach;
+        ++steps;
       }
     }
-    return 1 + jumpFromGivenPosition(nums, nextIndex);
+    return steps;
   }
 };
 // @leet end
