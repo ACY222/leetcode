@@ -4,19 +4,18 @@
 #include <vector>
 using std::vector;
 using std::unordered_map;
-using std::max;
+using std::max, std::max_element;
 class Solution {
 public:
   int maxJumps(vector<int>& arr, int d) {
     unordered_map<int, vector<int>> indexToAccessibleDest { findAccessibleDestinations(arr, d) };
     vector<int> jumps(arr.size(), 0);   // it records the maxJump for all pos
     vector<bool> visited(arr.size(), false);
-    int maxJump {0};
     for (int index = 0; index < arr.size(); ++index) {
-      int jump { maxJumpsForIndex(index, indexToAccessibleDest, visited, jumps) };
-      maxJump = max(maxJump, jump);
+      maxJumpsForIndex(index, indexToAccessibleDest, visited, jumps);
     }
-    return maxJump;
+    auto itToMaxJump { max_element(jumps.begin(), jumps.end()) };
+    return *itToMaxJump;
   }
 private:
   // preprocess
@@ -56,13 +55,11 @@ private:
       return 1;       // so the jump must be 1
     }
     // if it can jump to some postions
-    int maxJump {0};
     for (auto child : indexToAccessibleDest[index]) {
       int jump {maxJumpsForIndex(child, indexToAccessibleDest, visited, jumps)};
-      maxJump = max(maxJump, jump + 1);
+      jumps[index] = max(jumps[index], jump + 1);
     }
-    jumps[index] = maxJump;
-    return maxJump;
+    return jumps[index];
   }
 };
 // @leet end
