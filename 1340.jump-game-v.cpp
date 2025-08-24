@@ -1,62 +1,55 @@
 // @leet start
 #include <algorithm>
-#include <unordered_map>
+#include <iostream>
 #include <vector>
 using std::vector;
-using std::unordered_map;
-using std::max, std::max_element;
+using std::max, std::min;
+using std::cout, std::endl;
 class Solution {
 public:
   int maxJumps(vector<int>& arr, int d) {
-    unordered_map<int, vector<int>> indexToAccessibleDest { findAccessibleDestinations(arr, d) };
+    vector<vector<int>> reacheableDestinations { findReacheableDestinations(arr, d) };
+    // we can use the value of jumps to show if we have visited the element
+    // if the corresponding jump is not 0, then we have visited it
     vector<int> jumps(arr.size(), 0);   // it records the maxJump for all pos
-    vector<bool> visited(arr.size(), false);
+    int maxJump {0};
     for (int index = 0; index < arr.size(); ++index) {
-      maxJumpsForIndex(index, indexToAccessibleDest, visited, jumps);
+      maxJump = max(maxJumpsForIndex(index, reacheableDestinations, jumps), maxJump);
     }
-    auto itToMaxJump { max_element(jumps.begin(), jumps.end()) };
-    return *itToMaxJump;
+    return maxJump;
   }
 private:
   // preprocess
-  unordered_map<int, vector<int>> findAccessibleDestinations(vector<int> &arr, int d) {
-    unordered_map<int, vector<int>> indexToAccessibleDest {};
+  vector<vector<int>> findReacheableDestinations(vector<int> &arr, int d) {
+    vector<vector<int>> reacheableDestinations(arr.size());
     for (int i = 0; i < arr.size(); ++i) {
       // find the valid indices to go backward
-      for (int j = 1; j <= d; ++j) {
+      for (int j = 1; j <= min(d, i); ++j) {
         // if the destination is valid
-        if (i - j >= 0 && arr[i] > arr[i - j]) {
-          indexToAccessibleDest[i].push_back(i - j);
+        if (arr[i] <= arr[i - j]) {
+          break;
         }
-        else {    // if the destination is out of range or the value is bigger
-          break;  // stop exploring backward
-        }
+        reacheableDestinations[i].push_back(i - j);
       }
       // find the valid indices to go forward
-      for (int j = 1; j <= d; ++j) {
+      for (int j = 1; j <= min(d, (int)arr.size() - i - 1); ++j) {
         // if the destination is valid
-        if (i + j < arr.size() && arr[i] > arr[i + j]) {
-          indexToAccessibleDest[i].push_back(i + j);
+        if (arr[i] <= arr[i + j]) {
+          break;
         }
-        else {    // if the destination is out of range or the value is bigger
-          break;  // stop exploring forward
-        }
+        reacheableDestinations[i].push_back(i + j);
       }
     }
-    return indexToAccessibleDest;
+    return reacheableDestinations;
   }
-  int maxJumpsForIndex(int index, unordered_map<int, vector<int>> &indexToAccessibleDest, vector<bool> &visited, vector<int> &jumps) {
-    if (visited[index]) {     // if we have visited this index, return the jumps
+  int maxJumpsForIndex(int index, vector<vector<int>> &indexToAccessibleDest, vector<int> &jumps) {
+    if (jumps[index] != 0) {      // if we have visited this index, return the jumps
       return jumps[index];
     }
-    visited[index] = true;
-    if (indexToAccessibleDest[index].empty()) {   // it cannot jump to other pos
-      jumps[index] = 1;
-      return 1;       // so the jump must be 1
-    }
+    jumps[index] = 1;             // we can visit itself, so at least 1
     // if it can jump to some postions
     for (auto child : indexToAccessibleDest[index]) {
-      int jump {maxJumpsForIndex(child, indexToAccessibleDest, visited, jumps)};
+      int jump {maxJumpsForIndex(child, indexToAccessibleDest, jumps)};
       jumps[index] = max(jumps[index], jump + 1);
     }
     return jumps[index];
