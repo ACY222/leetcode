@@ -1,56 +1,64 @@
 // @leet start
 #include <algorithm>
-#include <iostream>
+#include <stack>
 #include <vector>
 using std::vector;
-using std::max, std::min;
-using std::cout, std::endl;
+using std::max;
+using std::stack;
 class Solution {
 public:
+  // Try to use monotone stack to solve this problem
   int maxJumps(vector<int>& arr, int d) {
-    vector<vector<int>> reacheableDestinations { findReacheableDestinations(arr, d) };
-    // we can use the value of jumps to show if we have visited the element
-    // if the corresponding jump is not 0, then we have visited it
-    vector<int> jumps(arr.size(), 0);   // it records the maxJump for all pos
-    int maxJump {0};
-    for (int index = 0; index < arr.size(); ++index) {
-      maxJump = max(maxJumpsForIndex(index, reacheableDestinations, jumps), maxJump);
+    int n {(int)arr.size()};
+    vector<vector<int>> jumpsTo(n);
+    vector<int> jumps(n, 0);
+    stack<int> st {};
+    // try to jump backwards
+    int j;
+    for (int i = 0; i < n; ++i) {
+      while (!st.empty() && arr[st.top()] < arr[i]) {
+        // arr[j] < arr[i] and their distance <= d, so i can jump to j
+        if (i - st.top() <= d) {
+          jumpsTo[i].push_back(st.top());
+        }
+        st.pop();
+      }
+      st.push(i);
     }
-    return maxJump;
+    while (!st.empty()) {
+      st.pop();         // clear the stack
+    }
+    // try to jump forwards
+    for (int i = n - 1; i >= 0; --i) {
+      while (!st.empty() && arr[st.top()] < arr[i]) {
+        if (st.top() - i <= d) {
+          jumpsTo[i].push_back(st.top());
+        }
+        st.pop();
+      }
+      st.push(i);
+    }
+    // find the longest length
+    int maxLength {0};
+    for (int i = 0; i < n; ++i) {
+      if (jumps[i]) {   // if jumps[i] has been calculated before, i had been
+        // jumped to. Therefore, i won't be the start of the longest path
+        continue;
+      }
+      maxLength = max(maxLength, findLongestPath(jumpsTo, jumps, i));
+    }
+    return maxLength;
   }
 private:
-  // preprocess
-  vector<vector<int>> findReacheableDestinations(vector<int> &arr, int d) {
-    vector<vector<int>> reacheableDestinations(arr.size());
-    for (int i = 0; i < arr.size(); ++i) {
-      // find the valid indices to go backward
-      for (int j = 1; j <= min(d, i); ++j) {
-        // if the destination is valid
-        if (arr[i] <= arr[i - j]) {
-          break;
-        }
-        reacheableDestinations[i].push_back(i - j);
+  int findLongestPath(vector<vector<int>> &jumpsTo, vector<int> &jumps, int index) {
+    jumps[index] = 1;
+    for (int dest : jumpsTo[index]) {
+      if (jumps[dest]) {
+        jumps[index] = max(jumps[index], jumps[dest] + 1);
       }
-      // find the valid indices to go forward
-      for (int j = 1; j <= min(d, (int)arr.size() - i - 1); ++j) {
-        // if the destination is valid
-        if (arr[i] <= arr[i + j]) {
-          break;
-        }
-        reacheableDestinations[i].push_back(i + j);
+      else {
+        jumps[index] = max(jumps[index], 1 + findLongestPath(jumpsTo, jumps, dest));
       }
-    }
-    return reacheableDestinations;
-  }
-  int maxJumpsForIndex(int index, vector<vector<int>> &indexToAccessibleDest, vector<int> &jumps) {
-    if (jumps[index] != 0) {      // if we have visited this index, return the jumps
-      return jumps[index];
-    }
-    jumps[index] = 1;             // we can visit itself, so at least 1
-    // if it can jump to some postions
-    for (auto child : indexToAccessibleDest[index]) {
-      int jump {maxJumpsForIndex(child, indexToAccessibleDest, jumps)};
-      jumps[index] = max(jumps[index], jump + 1);
     }
     return jumps[index];
   }
