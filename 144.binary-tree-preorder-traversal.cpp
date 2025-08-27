@@ -10,27 +10,31 @@
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
+#include <stack>
 #include <vector>
 using std::vector;
+using std::stack;
 class Solution {
 public:
-  vector<int> res {};
   vector<int> preorderTraversal(TreeNode* root) {
     if (root == nullptr) {
       return {};
     }
-    traversal(root);
-    return res;
-  }
-private:
-  void traversal(TreeNode *node) {
-    if (node == nullptr) {
-      return;
+    vector<int> res;
+    stack<TreeNode*> st;
+    st.push(root);
+    while (!st.empty()) {
+      TreeNode *node { st.top() };
+      st.pop();
+      res.push_back(node->val);
+      if (node->right) {
+        st.push(node->right);
+      }
+      if (node->left) {
+        st.push(node->left);
+      }
     }
-    res.push_back(node->val);
-    preorderTraversal(node->left);
-    preorderTraversal(node->right);
-    return;
+    return res;
   }
 };
 // @leet end
