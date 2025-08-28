@@ -19,39 +19,39 @@ public:
     ListNode *curr, *prev, *next, *last, *begin { head };
     int nums { right - left };    // the number of nodes to reverse
     if (left == 1) {    // it begins at head
-      prev = begin;
+      prev = head;
       curr = prev->next;
-      while (nums) {
-        next = curr->next;
-        curr->next = prev;
-        prev = curr;
-        curr = next;
-        --nums;
-      }
-      begin->next = curr;
+      reverse(nums, curr, prev);
+      head->next = curr;
       head = prev;
     }
     else {
+      ListNode *begin, *last { head };
       left -= 2;
       while (left > 0) {
         --left;
-        prev = begin->next;
+        last = last->next;
       }
-      last = begin;
-      begin = begin->next;
+      begin = last->next;
       prev = begin;
-      curr = prev->next;
-      while (nums) {
-        next = curr->next;
-        curr->next = prev;
-        prev = curr;
-        curr = next;
-        --nums;
-      }
-      last->next = prev;
+      curr = begin->next;
+      reverse(nums, curr, prev);
       begin->next = curr;
+      last->next = prev;
     }
     return head;
+  }
+private:
+  void reverse(int nums, ListNode* &curr, ListNode* &prev) {
+    ListNode *next;
+    while (nums) {
+      next = curr->next;
+      curr->next = prev;
+      prev = curr;
+      curr = next;
+      --nums;
+    }
+    return;
   }
 };
 // @leet end
