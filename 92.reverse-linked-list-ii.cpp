@@ -12,46 +12,24 @@
 class Solution {
 public:
   ListNode* reverseBetween(ListNode* head, int left, int right) {
-    // if there's only one node or right equals left, no need to reverse
-    if (!head->next || right == left) {
+    // if there is only one node or left == right, no need to reverse
+    if (!head->next || left == right) {
       return head;
     }
-    ListNode *curr, *prev, *next, *last, *begin { head };
-    int nums { right - left };    // the number of nodes to reverse
-    if (left == 1) {    // it begins at head
-      prev = head;
-      curr = prev->next;
-      reverse(nums, curr, prev);
-      head->next = curr;
-      head = prev;
+    ListNode dummy(0, head);    // use a virtual head node to solve edge case
+    ListNode *prev { &dummy }, *curr;
+    for (int i = 0; i < left - 1; ++i) {
+      prev = prev->next;
     }
-    else {
-      ListNode *begin, *last { head };
-      left -= 2;
-      while (left > 0) {
-        --left;
-        last = last->next;
-      }
-      begin = last->next;
-      prev = begin;
-      curr = begin->next;
-      reverse(nums, curr, prev);
-      begin->next = curr;
-      last->next = prev;
+    curr = prev->next;    // now curr points to the first node in the range
+    // and prev points to the last node before the range
+    for (int i = 0; i < right - left; ++i) {
+      ListNode *next = curr->next;
+      curr->next = next->next;    // so that in next loop next will be updated
+      next->next = prev->next;
+      prev->next = next;
     }
-    return head;
-  }
-private:
-  void reverse(int nums, ListNode* &curr, ListNode* &prev) {
-    ListNode *next;
-    while (nums) {
-      next = curr->next;
-      curr->next = prev;
-      prev = curr;
-      curr = next;
-      --nums;
-    }
-    return;
+    return dummy.next;
   }
 };
 // @leet end
