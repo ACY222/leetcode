@@ -9,8 +9,11 @@
  *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
+#include <stack>
+using std::stack;
 class Solution {
 public:
+  // using a stack
   ListNode* reverseBetween(ListNode* head, int left, int right) {
     // if there is only one node or left == right, no need to reverse
     if (!head->next || left == right) {
@@ -18,17 +21,24 @@ public:
     }
     ListNode dummy(0, head);    // use a virtual head node to solve edge case
     ListNode *prev { &dummy }, *curr;
+    stack<ListNode*> st;
     for (int i = 0; i < left - 1; ++i) {
       prev = prev->next;
     }
-    curr = prev->next;    // now curr points to the first node in the range
+    curr = prev->next;
+    // now curr points to the first node in the range
     // and prev points to the last node before the range
-    for (int i = 0; i < right - left; ++i) {
-      ListNode *next = curr->next;
-      curr->next = next->next;    // so that in next loop next will be updated
-      next->next = prev->next;
-      prev->next = next;
+    for (int i = 0; i <= right - left; ++i) {
+      st.push(curr);
+      curr = curr->next;
     }
+    // now curr points to the first node after the range
+    while (!st.empty()) {
+      prev->next = st.top();
+      st.pop();
+      prev = prev->next;
+    }
+    prev->next = curr;
     return dummy.next;
   }
 };
