@@ -9,47 +9,43 @@
  *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
-#include <stack>
-using std::stack;
 class Solution {
 public:
-  // in O(n) time and O(n) space, how to improve it
-  // we can reverse the back half linked list, and compare them from both sides
+  // method 1: push the nodes into a stack, and then compare them one by one
+  //  O(n) space and O(n) time
+  // method 2: reverse the second half of the list, and compare two parts
   bool isPalindrome(ListNode* head) {
-    ListNode *fast { head }, *slow { head }, *prev, *temp;
-    // move fast to the end to find the node in the middle
+    if (!head->next) {
+      return true;
+    }
+    ListNode *slow {head}, *fast {head}, *left {head}, *right;
     while (fast && fast->next) {
       fast = fast->next->next;
       slow = slow->next;
     }
-    // 1, 2, 3, 4, 5
-    //       |
-    // 1, 2, 3, 4
-    //       |
-    prev = slow;
-    slow = slow->next;
-    prev->next = nullptr;
-    // 1, 2, 3, 4, 5
-    //       p  s
-    // 1, 2, 3, 4
-    //       p  s
-    // begin to reverse the back half linked list
-    while (slow) {
-      temp = slow->next;
-      slow->next = prev;
-      prev = slow;
-      slow = temp;
+    if (fast) {   // if the length is odd, we need to move slow forward
+      slow = slow->next;
     }
-    // after reversing the list, compare the node's val from both side
-    ListNode *begin { head }, *end { prev };
-    while (end) {
-      if (begin->val != end->val) {
+    right = reverse(slow);
+    while (right) {
+      if (left->val != right->val) {
         return false;
       }
-      begin = begin->next;
-      end = end->next;
+      right = right->next;
+      left = left->next;
     }
     return true;
+  }
+private:
+  ListNode* reverse(ListNode *head) {
+    ListNode *prev {nullptr}, *curr {head}, *next;
+    while (curr != nullptr) {
+      next = curr->next;
+      curr->next = prev;
+      prev = curr;
+      curr = next;
+    }
+    return prev;
   }
 };
 // @leet end
