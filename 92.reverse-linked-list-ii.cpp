@@ -9,37 +9,29 @@
  *     ListNode(int x, ListNode *next) : val(x), next(next) {}
  * };
  */
-#include <stack>
-using std::stack;
 class Solution {
 public:
-  // using a stack
+  // input the head of the list and the range [left, right] to reverse
+  // return the head of the list with part of it being reversed
   ListNode* reverseBetween(ListNode* head, int left, int right) {
-    // if there is only one node or left == right, no need to reverse
-    if (!head->next || left == right) {
+    if (left == 1) {    // reverse the list from head
+      return reverseN(head, right);
+    }
+    head->next = reverseBetween(head->next, left - 1, right - 1);
+    return head;
+  }
+private:
+  ListNode *successor {nullptr};
+  ListNode *reverseN(ListNode *head, int n) {
+    if (n == 1) {
+      successor = head->next;
       return head;
     }
-    ListNode dummy(0, head);    // use a virtual head node to solve edge case
-    ListNode *prev { &dummy }, *curr;
-    stack<ListNode*> st;
-    for (int i = 0; i < left - 1; ++i) {
-      prev = prev->next;
-    }
-    curr = prev->next;
-    // now curr points to the first node in the range
-    // and prev points to the last node before the range
-    for (int i = 0; i <= right - left; ++i) {
-      st.push(curr);
-      curr = curr->next;
-    }
-    // now curr points to the first node after the range
-    while (!st.empty()) {
-      prev->next = st.top();
-      st.pop();
-      prev = prev->next;
-    }
-    prev->next = curr;
-    return dummy.next;
+    ListNode *last = reverseN(head->next, n - 1);
+    head->next->next = head;
+    head->next = successor;
+    return last;
   }
+
 };
 // @leet end
