@@ -11,10 +11,13 @@ public:
       while (slow < nums.size() && nums[slow]) {
         ++slow;
       }
-      while (fast < slow || (fast < nums.size() && !nums[fast])) {
+      if (fast <= slow) {
+        fast = slow + 1;
+      }
+      while (fast < nums.size() && !nums[fast]) {
         ++fast;
       }
-      if (fast == nums.size() || slow == nums.size()) {
+      if (fast >= nums.size()) {
         return;
       }
       nums[slow] = nums[fast];
