@@ -12,42 +12,31 @@
 class Solution {
 public:
   ListNode* reverseKGroup(ListNode* head, int k) {
-    // if k == 1 or there's only 1 node, no need to reverse
-    if (k == 1 || !head->next) {
-      return head;
+    if (!head) {
+      return nullptr;
     }
-    int numRemainNodesToReverse {k};
-    bool isFirstGroup {true};
-    ListNode *curr, *prev, *temp, *checkIfEnoughNodes {head};
-    ListNode *begin {head}, *end {nullptr}, *lastEnd {nullptr};
-    while (checkIfEnoughNodes) {
-      --numRemainNodesToReverse;
-      checkIfEnoughNodes = checkIfEnoughNodes->next;
-      if (!numRemainNodesToReverse) {    // if there's enough nodes
-        end = checkIfEnoughNodes;
-        curr = begin->next;
-        prev = begin;
-        while (curr != end) {
-          temp = curr->next;
-          curr->next = prev;
-          prev = curr;
-          curr = temp;
-        }
-        begin->next = end;
-        if (lastEnd) {
-          lastEnd->next = prev;
-        }
-        lastEnd = begin;
-        if (isFirstGroup) {
-          head = prev;
-          isFirstGroup = false;
-        }
-        // prepare for next round
-        numRemainNodesToReverse = k;
-        begin = end;
+    ListNode *begin {head}, *end {head}, *newHead;
+    for (int i = 0; i < k; ++i) {
+      if (!end) {   // if the number of nodes are less than k, no need to reverse
+        return head;
       }
+      end = end->next;
     }
-    return head;
+    newHead = reverse(begin, end);
+    begin->next = reverseKGroup(end, k);
+    return newHead;
+  }
+private:
+  // reverse the part of the list [begin, end) and return the new head
+  ListNode* reverse(ListNode *begin, ListNode *end) {
+    ListNode *prev {nullptr}, *curr {begin}, *next {begin};
+    while (curr != end) {
+      next = curr->next;
+      curr->next = prev;
+      prev = curr;
+      curr = next;
+    }
+    return prev;
   }
 };
 // @leet end
