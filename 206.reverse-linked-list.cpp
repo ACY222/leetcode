@@ -11,6 +11,8 @@
  */
 class Solution {
 public:
+  // Use recursion: input a node head, reverse the linked list start at head and
+  // return the head of the reversed list
   ListNode* reverseList(ListNode* head) {
     // If there are only 1/2 nodes in the list, we don't need to reverse
     if (!head || !head->next) {
