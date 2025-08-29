@@ -12,19 +12,14 @@
 class Solution {
 public:
   ListNode* reverseList(ListNode* head) {
-    // if there is only 1/2 nodes in the list, no need to reverse
+    // If there are only 1/2 nodes in the list, we don't need to reverse
     if (!head || !head->next) {
       return head;
     }
-    ListNode *curr {head->next}, *prev {head}, *temp {nullptr};
-    head->next = nullptr; // to avoid circle in the list
-    while (curr) {
-      temp = curr->next;
-      curr->next = prev;
-      prev = curr;
-      curr = temp;
-    }
-    return prev;
+    ListNode *last = reverseList(head->next);
+    head->next->next = head;
+    head->next = nullptr;
+    return last;
   }
 };
 // @leet end
