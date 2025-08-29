@@ -38,13 +38,14 @@ public:
   }
 private:
   ListNode* reverse(ListNode *head) {
-    if (!head || !head->next) {
-      return head;
+    ListNode *prev {nullptr}, *curr {head}, *next;
+    while (curr != nullptr) {
+      next = curr->next;
+      curr->next = prev;
+      prev = curr;
+      curr = next;
     }
-    ListNode *newHead {reverse(head->next)};
-    head->next->next = head;
-    head->next = nullptr;
-    return newHead;
+    return prev;
   }
 };
 // @leet end
