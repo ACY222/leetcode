@@ -5,17 +5,21 @@ class NumArray {
 public:
   NumArray(vector<int>& nums) {
     this->nums = nums;
+    for (int i = 0, sum = 0; i < nums.size(); ++i) {
+      sum += nums[i];
+      this->prefixSum.push_back(sum);
+    }
   }
 
   int sumRange(int left, int right) {
-    int sum {0};
-    for (int i = left; i <= right; ++i) {
-      sum += this->nums[i];
+    if (left == 0) {
+      return this->prefixSum[right];
     }
-    return sum;
+    return this->prefixSum[right] - this->prefixSum[left - 1];
   }
 private:
   vector<int> nums;
+  vector<int> prefixSum;
 };
 
 /**
