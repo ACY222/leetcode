@@ -1,20 +1,24 @@
 // @leet start
+#include <algorithm>
+#include <utility>
 #include <vector>
 using std::vector;
+using std::pair, std::sort;
 class Solution {
 public:
-  // the difference array helps
   bool carPooling(vector<vector<int>>& trips, int capacity) {
-    vector<int> diff(1001, 0);
+    vector<pair<int, int>> onAndOff;
     int n {(int)trips.size()};
     for (int i = 0; i < n; ++i) {
-      int num {trips[i][0]}, from {trips[i][1]}, to {trips[i][2]};
-      diff[from] -= num;
-      diff[to] += num;
+      onAndOff.push_back({trips[i][1], trips[i][0]});
+      onAndOff.push_back({trips[i][2], -trips[i][0]});
     }
-    for (int i = 0; i <= 1000; ++i) {
-      capacity += diff[i];
-      if (capacity < 0) {
+    sort(onAndOff.begin(), onAndOff.end());
+    int numOfPassengers {0};
+    n = onAndOff.size();
+    for (int i = 0; i < n; ++i) {
+      numOfPassengers += onAndOff[i].second;
+      if (numOfPassengers > capacity) {
         return false;
       }
     }
