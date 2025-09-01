@@ -7,13 +7,12 @@ public:
     int n {(int)trips.size()};
     vector<int> remainSeats(1000, capacity);
     for (int i = 0; i < n; ++i) {
-      for (int j = trips[i][1], num = trips[i][0]; j < trips[i][2]; ++j) {
+      int num {trips[i][0]}, from {trips[i][1]}, to {trips[i][2]};
+      for (int j = from; j < to; ++j) {
+        if (remainSeats[j] < num) {
+          return false;
+        }
         remainSeats[j] -= num;
-      }
-    }
-    for (int seats : remainSeats) {
-      if (seats < 0) {
-        return false;
       }
     }
     return true;
