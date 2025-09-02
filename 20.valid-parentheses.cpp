@@ -8,7 +8,7 @@ public:
   bool isValid(string s) {
     stack<char> st {};
     for (char c : s) {
-      if (c == '(' || c == '{' || c == '[') {
+      if (c == '(' or c == '{' or c == '[') {
         st.push(c);
       }
       else {
@@ -16,36 +16,13 @@ public:
           return false;
         }
         char top {st.top()};
-        if (c == ')') {
-          if (top == '(') {
-            st.pop();
-          }
-          else {
-            return false;
-          }
+        if ((top == '(' and c != ')') or (top == '[' and c != ']') or (top == '{' and c != '}')) {
+          return false;
         }
-        else if (c == ']') {
-          if (top == '[') {
-            st.pop();
-          }
-          else {
-            return false;
-          }
-        }
-        else {
-          if (top == '{') {
-            st.pop();
-          }
-          else {
-            return false;
-          }
-        }
+        st.pop();
       }
     }
-    if (st.empty()) {
-      return true;
-    }
-    return false;
+    return st.empty();
   }
 };
 // @leet end
