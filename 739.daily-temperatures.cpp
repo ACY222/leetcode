@@ -11,13 +11,13 @@ public:
   vector<int> dailyTemperatures(vector<int>& temperatures) {
     int n {(int)temperatures.size()};
     vector<int> res(n, 0);
-    stack<pair<int, int>> indexAndValue {};
+    stack<int> index {};
     for (int i = n - 1; i >= 0; --i) {
-      while (!indexAndValue.empty() and indexAndValue.top().second <= temperatures[i]) {
-        indexAndValue.pop();
+      while (!index.empty() and temperatures[index.top()] <= temperatures[i]) {
+        index.pop();
       }
-      res[i] = indexAndValue.empty() ? 0 : indexAndValue.top().first - i;
-      indexAndValue.push({i, temperatures[i]});
+      res[i] = index.empty() ? 0 : index.top() - i;
+      index.push(i);
     }
     return res;
   }
