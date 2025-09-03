@@ -17,34 +17,33 @@ using std::unordered_map;
 class Solution {
 public:
   unordered_map<int, int> valueToIndex {};
-  int pos;
   TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
-    int n = inorder.size();
-    pos = postorder.size() - 1;
+    int n {(int)inorder.size()};
     for (int i = 0; i < n; ++i) {
       valueToIndex[inorder[i]] = i;
     }
-    return build(postorder, 0, n);
+    return build(postorder, 0, n, inorder, 0, n);
   }
 
 private:
   // input the postorder and the pos of current root, and the range(begin and
   // end) of inorder
   // return the root of an organized subtree
-  TreeNode* build(vector<int>& postorder, int begin, int end) {
-    if (begin >= end) {
+  TreeNode* build(vector<int>& postorder, int postBegin, int postEnd,
+                  vector<int>& inorder, int inBegin, int inEnd) {
+    if (inBegin >= inEnd) {
       return nullptr;
     }
-    int rootValue {postorder[pos--]}, index {valueToIndex[rootValue]};
+    /* post: lllrrrm
+     * in  : lllmrrr
+     *
+     */
+    int rootValue {postorder[postEnd - 1]}, index {valueToIndex[rootValue]};
+    int leftSize {index - inBegin};
     TreeNode* root = new TreeNode(rootValue);
-    // the next root lies in right subtree
-    if (pos >= 0 and valueToIndex[postorder[pos]] > index) {
-      root->right = build(postorder, index + 1, end);
-    }
-    // the next root lies in left subtree
-    if (pos >= 0 and valueToIndex[postorder[pos]] < index) {
-      root->left = build(postorder, begin, index);
-    }
+    // build the tree recursively
+    root->left = build(postorder, postBegin, postBegin + leftSize, inorder, inBegin, index);
+    root->right = build(postorder, postBegin + leftSize, postEnd - 1, inorder, index + 1, inEnd);
     return root;
   }
 };
