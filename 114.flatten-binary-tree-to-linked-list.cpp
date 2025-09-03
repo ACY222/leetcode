@@ -10,8 +10,6 @@
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
-#include <stack>
-using std::stack;
 class Solution {
 public:
   // like a preorder traverse
@@ -19,22 +17,25 @@ public:
     if (!root) {
       return;
     }
-    stack<TreeNode*> st {};
-    TreeNode *curr {}, *last {};
-    st.push(root);
-    while (!st.empty()) {
-      curr = st.top();
-      st.pop();
-      if (last) {
-        last->left = nullptr;
-        last->right = curr;
-      }
-      if (curr->right) { st.push(curr->right); }
-      if (curr->left) { st.push(curr->left); }
-      last = curr;
+    traverseAndFlatten(root, nullptr);
+  }
+private:
+  void traverseAndFlatten(TreeNode *curr, TreeNode *parentRightChild) {
+    if (!curr) {
+      return;
     }
-    last->left = nullptr;
-    last->right = nullptr;
+    TreeNode *left {curr->left}, *right {curr->right};
+    curr->left = nullptr;
+    if (left) {
+      curr->right = left;
+      // traverse left if left exists
+      traverseAndFlatten(left, right ? right : parentRightChild);
+    }
+    else if (!right) {  // if left and right are both nullptr
+      curr->right = parentRightChild;
+      return;
+    }
+    traverseAndFlatten(right, parentRightChild);
   }
 };
 // @leet end
