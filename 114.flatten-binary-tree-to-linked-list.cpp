@@ -12,30 +12,20 @@
  */
 class Solution {
 public:
-  // like a preorder traverse
   void flatten(TreeNode* root) {
     if (!root) {
       return;
     }
-    traverseAndFlatten(root, nullptr);
-  }
-private:
-  void traverseAndFlatten(TreeNode *curr, TreeNode *parentRightChild) {
-    if (!curr) {
-      return;
+    flatten(root->left);
+    flatten(root->right);
+
+    TreeNode *left {root->left}, *right {root->right}, *p {root};
+    root->left = nullptr;
+    root->right = left;
+    while (p->right) {
+      p = p->right;
     }
-    TreeNode *left {curr->left}, *right {curr->right};
-    curr->left = nullptr;
-    if (left) {
-      curr->right = left;
-      // traverse left if left exists
-      traverseAndFlatten(left, right ? right : parentRightChild);
-    }
-    else if (!right) {  // if left and right are both nullptr
-      curr->right = parentRightChild;
-      return;
-    }
-    traverseAndFlatten(right, parentRightChild);
+    p->right = right;
   }
 };
 // @leet end
