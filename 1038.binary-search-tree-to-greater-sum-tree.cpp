@@ -10,19 +10,28 @@
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
+#include <stack>
+using std::stack;
 class Solution {
 public:
-  int sum {0};
   // inorder traverse works here
   TreeNode* bstToGst(TreeNode* root) {
-    if (!root) {
-      return nullptr;
+    int sum {0}, originalSum {0};
+    stack<TreeNode*> st;
+    TreeNode* curr {root};
+    while (curr or !st.empty()) {
+      while (curr) {
+        st.push(curr);
+        curr = curr->right;
+      }
+      curr = st.top(); st.pop();
+      // do something here, begin:
+      originalSum = sum;
+      sum += curr->val;
+      curr->val += originalSum;
+      // end
+      curr = curr->left;
     }
-    bstToGst(root->right);
-    int originalSum {sum};
-    sum = sum + root->val;
-    root->val = root->val + originalSum;
-    bstToGst(root->left);
     return root;
   }
 };
