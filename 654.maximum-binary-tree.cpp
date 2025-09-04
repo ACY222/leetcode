@@ -11,30 +11,66 @@
  * };
  */
 #include <vector>
+#include <stack>
 using std::vector;
+using std::stack;
 class Solution {
 public:
+  // Yeah, I can use monotonic stack to find the max numbers in O(n) time
   TreeNode* constructMaximumBinaryTree(vector<int>& nums) {
-    return buildSubTree(nums, 0, nums.size());
-  }
-private:
-  TreeNode* buildSubTree(vector<int>& nums, int begin, int end) {
-    // base case, if the vector is empty
-    if (begin >= end) {
-      return nullptr;
+    int n {(int)nums.size()};
+    vector<int> right {rightGreater(nums, n)}, left {leftGreater(nums, n)};
+    // initialize the nodes for each number
+    vector<TreeNode*> nodes;
+    TreeNode* root {nullptr};
+    for (int i = 0; i < n; ++i) {
+      nodes.push_back(new TreeNode(nums[i]));
     }
-    // find the index and value of the max number
-    int index{0}, rootValue {-1};
-    for (int i = begin; i < end; ++i) {
-      if (nums[i] > rootValue) {
-        rootValue = nums[i];
-        index = i;
+    for (int i = 0; i < n; ++i) {
+      // if there's no nodes with greater value in both sides
+      if (right[i] == -1 and left[i] == -1) {
+        root = nodes[i];
+      }
+      // if there's no node with greater value in the left
+      // or if rightGreater's value > leftGreater's value
+      else if (left[i] == -1 or (right[i] != -1 and nums[left[i]] > nums[right[i]])) {
+        nodes[right[i]]->left = nodes[i];
+      }
+      else {
+        nodes[left[i]]->right = nodes[i];
       }
     }
-    TreeNode* root = new TreeNode(rootValue);
-    root->left = buildSubTree(nums, begin, index);
-    root->right = buildSubTree(nums, index + 1, end);
     return root;
+  }
+private:
+  vector<int> rightGreater(vector<int>& nums, int n) {
+    vector<int> indexOfRightGreater(n, -1);
+    stack<int> st {};   // the contents of the stack are the indices
+    for (int i = n - 1; i >= 0; --i) {
+      while (!st.empty() and nums[st.top()] < nums[i]) {
+        st.pop();
+      }
+      if (!st.empty()) {
+        indexOfRightGreater[i] = st.top();
+      }
+      st.push(i);
+    }
+    return indexOfRightGreater;
+  }
+
+  vector<int> leftGreater(vector<int>& nums, int n) {
+    vector<int> indexOfLeftGreater(n, -1);
+    stack<int> st {};
+    for (int i = 0; i < n; ++i) {
+      while (!st.empty() and nums[st.top()] < nums[i]) {
+        st.pop();
+      }
+      if (!st.empty()) {
+        indexOfLeftGreater[i] = st.top();
+      }
+      st.push(i);
+    }
+    return indexOfLeftGreater;
   }
 };
 // @leet end
