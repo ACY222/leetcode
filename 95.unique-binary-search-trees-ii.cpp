@@ -13,33 +13,34 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
-using std::vector;
-using std::string, std::to_string, std::unordered_map;
+using std::vector, std::unordered_map, std::string, std::to_string;
 class Solution {
 public:
+  unordered_map<string, vector<TreeNode*>> rangeToTrees {};
   vector<TreeNode*> generateTrees(int n) {
-    unordered_map<string, vector<TreeNode*>> fromRangeToSubtree {};
-    return generate_trees(1, n, fromRangeToSubtree);
+    return genetate_trees(1, n);
   }
+
 private:
-  vector<TreeNode*> generate_trees(int start, int end, unordered_map<string, vector<TreeNode*>>& fromRangeToSubtree) {
-    string key {to_string(start) + '-' + to_string(end)};
-    if (fromRangeToSubtree.find(key) != fromRangeToSubtree.end()) {
-      return fromRangeToSubtree[key];
+  vector<TreeNode*> genetate_trees(int begin, int end) {
+    string key {to_string(begin) + '-' + to_string(end)};
+    if (rangeToTrees.count(key)) {
+      return rangeToTrees[key];
     }
-    vector<TreeNode*> trees;
-    if (start > end) {
+    vector<TreeNode*> trees {};
+    if (begin > end) {
       trees.push_back(nullptr);
     }
-    for (int rootVal = start; rootVal <= end; ++rootVal) {
-      vector<TreeNode*> leftTrees { generate_trees(start, rootVal - 1, fromRangeToSubtree) };
-      vector<TreeNode*> rightTrees { generate_trees(rootVal + 1, end, fromRangeToSubtree) };
-      for (auto left : leftTrees) {
-        for (auto right : rightTrees) {
-          TreeNode* root = new TreeNode(rootVal);
-          root->left = left;
-          root->right = right;
+    for (int rootValue = begin; rootValue <= end; ++rootValue) {
+      vector<TreeNode*> leftTrees { genetate_trees(begin, rootValue - 1) };
+      vector<TreeNode*> rightTrees { genetate_trees(rootValue + 1, end) };
+      for (auto leftTree : leftTrees) {
+        for (auto rightTree : rightTrees) {
+          TreeNode* root = new TreeNode(rootValue);
+          root->left = leftTree;
+          root->right = rightTree;
           trees.push_back(root);
+          rangeToTrees[key].push_back(root);
         }
       }
     }
