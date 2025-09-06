@@ -27,10 +27,10 @@ private:
     if (rangeToTrees.count(key)) {
       return rangeToTrees[key];
     }
-    vector<TreeNode*> trees {};
     if (begin > end) {
-      trees.push_back(nullptr);
+      return {nullptr};
     }
+    vector<TreeNode*> trees {};
     for (int rootValue = begin; rootValue <= end; ++rootValue) {
       vector<TreeNode*> leftTrees { genetate_trees(begin, rootValue - 1) };
       vector<TreeNode*> rightTrees { genetate_trees(rootValue + 1, end) };
@@ -40,10 +40,10 @@ private:
           root->left = leftTree;
           root->right = rightTree;
           trees.push_back(root);
-          rangeToTrees[key].push_back(root);
         }
       }
     }
+    rangeToTrees[key] = trees;
     return trees;
   }
 };
