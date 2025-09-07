@@ -1,48 +1,50 @@
 // @leet start
 #include <unordered_map>
+#include <utility>
+#include <deque>
 #include <list>
 using std::unordered_map;
+using std::pair;
 using std::list;
 class LFUCache {
 private:
-  unordered_map<int, int> keyToVal;
-  unordered_map<int, int> keyToFreq;
-  unordered_map<int, list<int>> freqToKeys;
-  unordered_map<int, list<int>::iterator> keyToIters;
-  int minFreq, cap;
+  unordered_map<int, pair<int, int>> keyToValAndFreq;
+  unordered_map<int, list<int>> freqToKey;
+  unordered_map<int, list<int>::iterator> keyToIterator;
+  int cap;
+  int minFreq;
 
   void increaseFreq(int key) {
-    int freq = keyToFreq[key];
-    ++keyToFreq[key];
-    freqToKeys[freq].erase(keyToIters[key]);
-    freqToKeys[freq + 1].push_back(key);
-    keyToIters[key] = --freqToKeys[freq + 1].end();
-    // if key is the only element in freqToKeys[minFreq], increase minFreq
-    if (minFreq == freq and freqToKeys[freq].empty()) {
+    int freq = keyToValAndFreq[key].second;
+    ++keyToValAndFreq[key].second;
+    freqToKey[freq].erase(keyToIterator[key]);
+    freqToKey[freq + 1].push_back(key);
+    keyToIterator[key] = --freqToKey[freq + 1].end();
+    // If key is the only element with minFreq, increase minFreq
+    if (minFreq == freq and freqToKey[freq].empty()) {
       ++minFreq;
     }
   }
 
-  void removeMinFreqKey() {
-    list<int>& minFreqKeys = freqToKeys[minFreq];
-    // remove the first key in the set
-    // for we will insert the recently used element in the end
-    int keyToDelete = minFreqKeys.front();
-    // remove it from all maps
-    keyToVal.erase(keyToDelete);
-    keyToFreq.erase(keyToDelete);
-    minFreqKeys.pop_front();
-    keyToIters.erase(keyToDelete);
-    // make sure that the cache is not empty, otherwise there will be an
-    // infinite loop
-    if (keyToVal.empty()) {
-      minFreq = 0;
+  void removeLeastFreqUsed() {
+    if (cap <= 0 or keyToValAndFreq.empty()) {
       return;
     }
-    while (freqToKeys[minFreq].empty()) {
-      ++minFreq;
+    int keyToDelete = freqToKey[minFreq].front();
+    freqToKey[minFreq].pop_front();
+    keyToValAndFreq.erase(keyToDelete);
+    keyToIterator.erase(keyToDelete);
+    if (keyToValAndFreq.empty()) {
+      minFreq = 0;
+    }
+    else {
+      // if it's not empty, we may increase the minFreq
+      while (freqToKey[minFreq].empty()) {
+        ++minFreq;
+      }
     }
   }
+
 public:
   LFUCache(int capacity) {
     cap = capacity;
@@ -52,32 +54,26 @@ public:
   // If the key exists, return the value, don't forget to increase the frequency
   // maybe we also need to update minFreq
   int get(int key) {
-    if (!keyToVal.count(key)) {
+    if (!keyToValAndFreq.count(key)) {
       return -1;
     }
     increaseFreq(key);
-    return keyToVal[key];
+    return keyToValAndFreq[key].first;
   }
 
   void put(int key, int value) {
-    if (this->cap <= 0) {
-      return;
-    }
-    // If it exists, increase the frequency and then return its value
-    if (keyToVal.count(key)) {
-      // update the value
-      keyToVal[key] = value;
+    if (keyToValAndFreq.count(key)) {
+      keyToValAndFreq[key].first = value;
       increaseFreq(key);
       return;
     }
-    // If it doesn't exist, check if it's full
-    if (keyToVal.size() == cap) {
-      removeMinFreqKey();
+    // if the cache is full, we need to remove the LFU element
+    if (keyToValAndFreq.size() == cap) {
+      removeLeastFreqUsed();
     }
-    keyToVal[key] = value;
-    keyToFreq[key] = 1;
-    freqToKeys[1].push_back(key);
-    keyToIters[key] = --freqToKeys[1].end();
+    keyToValAndFreq[key] = {value, 1};
+    freqToKey[1].push_back(key);
+    keyToIterator[key] = --freqToKey[1].end();
     minFreq = 1;
   }
 };
