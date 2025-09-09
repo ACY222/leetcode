@@ -1,58 +1,55 @@
 // @leet start
 #include <algorithm>
+#include <queue>
 #include <vector>
 using std::vector;
+using std::queue;
 
 class Solution {
 private:
-  bool hasCycle {false};
-  vector<bool> visited, onPath;
-  vector<int> postorder {};
-
-  vector<vector<int>> convertToGraph(int num, vector<vector<int>>& prerequisites) {
+  // generate a graph from prerequisites and calculate the indegrees
+  vector<vector<int>> convertToGraph(int num, vector<vector<int>>& prerequisites, vector<int>& indegrees) {
     vector<vector<int>> graph(num, vector<int>());
     for (auto& edge : prerequisites) {
       int from = edge[1], to = edge[0];
       graph[from].push_back(to);
+      ++indegrees[to];
     }
     return graph;
   }
 
-  void traverse(int currNum, vector<vector<int>>& graph) {
-    if (hasCycle) {
-      return;
-    }
-    if (onPath[currNum]) {  // revisit a node twice
-      hasCycle = true;
-      return;
-    }
-    if (visited[currNum]) {
-      return;
+  vector<int> BFS(vector<vector<int>>& graph, vector<int>& indegrees, int num) {
+    queue<int> q;
+    vector<int> res;
+    for (int i = 0; i < num; ++i) {
+      if (indegrees[i] == 0) {
+        q.push(i);
+      }
     }
 
-    visited[currNum] = true;
-    onPath[currNum] = true;
-    for (int child : graph[currNum]) {
-      traverse(child, graph);
+    while (!q.empty()) {
+      int parent = q.front(); q.pop();
+      res.push_back(parent);
+      for (int child : graph[parent]) {
+        --indegrees[child];
+        if (indegrees[child] == 0) {
+          q.push(child);
+        }
+      }
     }
 
-    postorder.push_back(currNum);
-    onPath[currNum] = false;
+    if (res.size() == num) {
+      return res;
+    }
+    return {};
   }
 
 public:
+  // use bfs
   vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
-    vector<vector<int>> graph = convertToGraph(numCourses, prerequisites);
-    onPath.resize(numCourses);
-    visited.resize(numCourses);
-    for (int i = 0; i < numCourses; ++i) {
-      traverse(i, graph);
-      if (hasCycle) {
-        return {};
-      }
-    }
-    std::reverse(postorder.begin(), postorder.end());
-    return postorder;
+    vector<int> indegrees(numCourses);
+    vector<vector<int>> graph = convertToGraph(numCourses, prerequisites, indegrees);
+    return BFS(graph, indegrees, numCourses);
   }
 };
 // @leet end
