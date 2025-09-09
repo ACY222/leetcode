@@ -1,70 +1,58 @@
 // @leet start
 #include <algorithm>
-#include <queue>
-#include <unordered_map>
-#include <unordered_set>
 #include <vector>
 using std::vector;
-using std::unordered_map, std::queue, std::unordered_set;
+
 class Solution {
-  using intToSet = unordered_map<int, unordered_set<int>>;
 private:
-  intToSet findPreCourses(vector<vector<int>>& prerequisites, int num) {
-    // map from courses to their prerequisites
-    intToSet map;
+  bool hasCycle {false};
+  vector<bool> visited, onPath;
+  vector<int> postorder {};
+
+  vector<vector<int>> convertToGraph(int num, vector<vector<int>>& prerequisites) {
+    vector<vector<int>> graph(num, vector<int>());
     for (auto& edge : prerequisites) {
       int from = edge[1], to = edge[0];
-      map[to].insert(from);
+      graph[from].push_back(to);
     }
-    return map;
+    return graph;
   }
 
-  // return a queue whose elements are the courses without prerequisites
-  queue<int> findNoPreCourses(intToSet& map, int num) {
-    queue<int> q {};
-    for (int i = 0; i < num; ++i) {
-      if (!map.count(i)) {
-        q.push(i);
-      }
+  void traverse(int currNum, vector<vector<int>>& graph) {
+    if (hasCycle) {
+      return;
     }
-    return q;
+    if (onPath[currNum]) {  // revisit a node twice
+      hasCycle = true;
+      return;
+    }
+    if (visited[currNum]) {
+      return;
+    }
+
+    visited[currNum] = true;
+    onPath[currNum] = true;
+    for (int child : graph[currNum]) {
+      traverse(child, graph);
+    }
+
+    postorder.push_back(currNum);
+    onPath[currNum] = false;
   }
 
-  vector<int> topoSort(int num, intToSet& courseToPre, queue<int>& coursesWithoutPre) {
-    vector<int> sortedCourses;
-    while (!coursesWithoutPre.empty()) {
-      // if the num of pre is decreased to 0, remove it from the map
-      vector<int> coursesToRemove;
-      int courseToLearn = coursesWithoutPre.front(); coursesWithoutPre.pop();
-      sortedCourses.push_back(courseToLearn);
-      for (auto& course : courseToPre) {
-        // if courseToLearn is one of the prerequisites of current course
-        // erase it
-        if (course.second.count(courseToLearn)) {
-          course.second.erase(courseToLearn);
-          if (course.second.empty()) {
-            coursesWithoutPre.push(course.first);
-            coursesToRemove.push_back(course.first);   // remove it later
-          }
-        }
-      }
-      // remove the courses without prerequisites
-      for (int& course : coursesToRemove) {
-        courseToPre.erase(course);
-      }
-      coursesToRemove.clear();
-    }
-    if (sortedCourses.size() == num) {
-      return sortedCourses;
-    }
-    return {};
-  }
 public:
-  // topological sorting works
   vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
-    intToSet courseToPre {findPreCourses(prerequisites, numCourses)};
-    queue<int> coursesWithoutPre {findNoPreCourses(courseToPre, numCourses)};
-    return topoSort(numCourses, courseToPre, coursesWithoutPre);
+    vector<vector<int>> graph = convertToGraph(numCourses, prerequisites);
+    onPath.resize(numCourses);
+    visited.resize(numCourses);
+    for (int i = 0; i < numCourses; ++i) {
+      traverse(i, graph);
+      if (hasCycle) {
+        return {};
+      }
+    }
+    std::reverse(postorder.begin(), postorder.end());
+    return postorder;
   }
 };
 // @leet end
