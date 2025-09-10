@@ -1,24 +1,24 @@
 // @leet start
-#include <algorithm>
 #include <queue>
 #include <vector>
-using std::vector;
 using std::queue;
-
+using std::vector;
 class Solution {
 private:
-  // generate a graph from prerequisites and calculate the indegrees
-  vector<vector<int>> convertToGraph(int num, vector<vector<int>>& prerequisites, vector<int>& indegrees) {
+  vector<bool> onPath;
+  vector<int> indegrees;
+
+  vector<vector<int>> generateGraph(vector<vector<int>>& edges, int num) {
     vector<vector<int>> graph(num, vector<int>());
-    for (auto& edge : prerequisites) {
-      int from = edge[1], to = edge[0];
+    for (vector<int> edge : edges) {
+      int to = edge[0], from = edge[1];
       graph[from].push_back(to);
       ++indegrees[to];
     }
     return graph;
   }
 
-  vector<int> BFS(vector<vector<int>>& graph, vector<int>& indegrees, int num) {
+  vector<int> traverse(vector<vector<int>>& graph, int num) {
     queue<int> q;
     vector<int> res;
     for (int i = 0; i < num; ++i) {
@@ -30,6 +30,7 @@ private:
     while (!q.empty()) {
       int parent = q.front(); q.pop();
       res.push_back(parent);
+      --num;    // used to check if there is a cycle
       for (int child : graph[parent]) {
         --indegrees[child];
         if (indegrees[child] == 0) {
@@ -37,19 +38,18 @@ private:
         }
       }
     }
-
-    if (res.size() == num) {
+    if (num == 0) {
       return res;
     }
     return {};
   }
 
+
 public:
-  // use bfs
   vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
-    vector<int> indegrees(numCourses);
-    vector<vector<int>> graph = convertToGraph(numCourses, prerequisites, indegrees);
-    return BFS(graph, indegrees, numCourses);
+    indegrees.resize(numCourses, 0);
+    vector<vector<int>> graph = generateGraph(prerequisites, numCourses);
+    return traverse(graph, numCourses);
   }
 };
 // @leet end
