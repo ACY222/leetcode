@@ -30,14 +30,8 @@ class Solution {
       return x;
     }
 
-    void equal(char c1, char c2) {
-      int p = c1 - 'a', q = c2 - 'a';
+    void unionPQ(int p, int q) {
       int rootP = find(p), rootQ = find(q);
-      // if they are inequal in previous equations
-      if (inequal[rootP].count(rootQ) or inequal[rootQ].count(rootP)) {
-        satisfy = false;
-        return;
-      }
       // if they are not inequal and they have been in the same set
       if (rootP == rootQ) {
         return;
@@ -46,53 +40,35 @@ class Solution {
       if (size[rootP] > size[rootQ]) {
         parent[rootQ] = rootP;
         size[rootP] += size[rootQ];
-        inequal[rootP].insert(inequal[rootQ].begin(), inequal[rootQ].end());
       }
       else {
         parent[rootP] = rootQ;
         size[rootQ] += size[rootP];
-        inequal[rootQ].insert(inequal[rootP].begin(), inequal[rootP].end());
       }
       --count;
       return;
     }
-
-    void notEqual(char c1, char c2) {
-      int p = c1 - 'a', q = c2 - 'a';
-      int rootP = find(p), rootQ = find(q);
-      if (rootP == rootQ) {   // if they are in the same set
-        satisfy = false;
-        return;
-      }
-      if (inequal[rootP].count(rootQ) or inequal[rootQ].count(rootP)) {
-        return;
-      }
-      inequal[rootP].insert(rootQ);
-      inequal[rootQ].insert(rootP);
-      return;
-    }
-
-    bool canSatisfy() {
-      return satisfy;
-    }
-
   };
 public:
   bool equationsPossible(vector<string>& equations) {
     UnionFind uf(26);   // there are at most 26 lowercase letters
-    for (string equation : equations) {
-      if (!uf.canSatisfy()) {
-        return false;
-      }
-      char c1 = equation[0], c2 = equation[3];
-      if (equation[1] == '!') {
-        uf.notEqual(c1, c2);
-      }
-      else {
-        uf.equal(c1, c2);
+    // treat the equations first
+    for (string eq : equations) {
+      if (eq[1] == '=') {
+        int p = eq[0] - 'a', q = eq[3] - 'a';
+        uf.unionPQ(p, q);
       }
     }
-    return uf.canSatisfy();
+    // treat the inequations now
+    for (string ineq :equations) {
+      if (ineq[1] == '!') {
+        int p = ineq[0] - 'a', q = ineq[3] - 'a';
+        if (uf.find(p) == uf.find(q)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 };
 // @leet end
