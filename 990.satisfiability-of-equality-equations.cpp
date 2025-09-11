@@ -1,22 +1,15 @@
 // @leet start
 #include <string>
-#include <unordered_set>
 #include <vector>
 using std::vector, std::string;
-using std::unordered_set;
 class Solution {
   class UnionFind {
   private:
-    int count;
     vector<int> size, parent;
-    vector<unordered_set<int>> inequal;
-    bool satisfy {true};
   public:
     UnionFind(int n) {
-      count = n;
       size.resize(n, 1);
       parent.resize(n);
-      inequal.resize(n);  // to record it's different from what
       for (int i = 0; i < n; ++i) {
         parent[i] = i;
       }
@@ -45,7 +38,6 @@ class Solution {
         parent[rootP] = rootQ;
         size[rootQ] += size[rootP];
       }
-      --count;
       return;
     }
   };
@@ -60,7 +52,7 @@ public:
       }
     }
     // treat the inequations now
-    for (string ineq :equations) {
+    for (string ineq : equations) {
       if (ineq[1] == '!') {
         int p = ineq[0] - 'a', q = ineq[3] - 'a';
         if (uf.find(p) == uf.find(q)) {
