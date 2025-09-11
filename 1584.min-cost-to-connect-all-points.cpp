@@ -11,48 +11,37 @@ using std::pair, std::make_pair;
 using std::unordered_map, std::string, std::to_string;
 
 using Point = pair<int, int>;
-// two points and the distance
-using Edge = pair<pair<Point, Point>, int>;
+// the indices of two pointers and the distance
+using Edge = pair<pair<int, int>, int>;
 
 class Solution {
 private:
-  unordered_map<string, int> pointToIndex;
   vector<Edge> edges {};
-  vector<Point> indexToPoint {};
   vector<int> parent {}, size {};    // use indices instead of points
-
-  string convertPointToString(Point& p) {
-    return to_string(p.first) + '-' + to_string(p.second);
-  }
 
   int getDistance(Point& p, Point& q) {
     return abs(p.first - q.first) + abs(p.second - q.second);
   }
 
-  int find(Point& p) {
-    int index = pointToIndex[convertPointToString(p)];
-    while (parent[index] != index) {
-      parent[index] = parent[parent[index]];
-      index = parent[index];
+  int find(int x) {
+    while (parent[x] != x) {
+      parent[x] = parent[parent[x]];
+      x = parent[x];
     }
-    return index;
+    return x;
   }
 
-  // sort the edges by distance, initialize the parent, indexToPoint size, and
-  // pointToIndex
+  // sort the edges by distance, initialize the parent, size
   void preProcess(vector<vector<int>>& points, int num) {
     size.resize(num, 1);
     parent.reserve(num);
-    indexToPoint.reserve(num);
     edges.reserve((num - 1) * num / 2);
     for (int i = 0; i < num; ++i) {
       Point p = make_pair(points[i][0], points[i][1]);
       parent.push_back(i);
-      indexToPoint.push_back(p);
-      pointToIndex[convertPointToString(p)] = i;
       for (int j = i + 1; j < num; ++j) {
         Point q = make_pair(points[j][0], points[j][1]);
-        Edge edge = make_pair(make_pair(p, q), getDistance(p, q));
+        Edge edge = make_pair(make_pair(i, j), getDistance(p, q));
         edges.push_back(edge);
       }
     }
@@ -61,7 +50,7 @@ private:
     sort(edges.begin(), edges.end(), compare);
   }
 
-  bool connect(Point& p, Point& q) {
+  bool connect(int p, int q) {
     int rootP = find(p), rootQ = find(q);
     if (rootP == rootQ) {
       return false;   // they are already connected
