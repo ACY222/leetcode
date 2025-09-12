@@ -1,37 +1,20 @@
 // @leet start
+#include <climits>
 #include <numeric>
+#include <queue>
+#include <stack>
 #include <vector>
 #include <algorithm>
 using namespace std;
-class Solution {
+
+class UnionFind {
 private:
-  vector<int> parent, size;
-
-  static constexpr int U = 0;
-  static constexpr int V = 1;
-  static constexpr int STR = 2;
-  static constexpr int MUST = 3;
-
-  void resetUnionFind() {
-    iota(parent.begin(), parent.end(), 0);
-  }
-
-  void init(int n, vector<vector<int>>& edges) {
-    // initialize parent and size
+  vector<int> parent, sizes;
+public:
+  UnionFind(int n) {
     parent.resize(n);
-    resetUnionFind();
-    size.resize(n, 1);
-
-    // sort edges by musti and strength
-    auto compare = [](vector<int>& a, vector<int>& b) {
-      if (a[MUST] != b[MUST]) {
-        return a[MUST] > b[MUST];
-      }
-      else {
-        return a[STR] > b[STR];
-      }
-    };
-    sort(edges.begin(), edges.end(), compare);
+    iota(parent.begin(), parent.end(), 0);
+    sizes.resize(n, 1);
   }
 
   int find(int x) {
@@ -43,62 +26,73 @@ private:
   }
 
   bool unite(int p, int q) {
-    int rootP = find(p), rootQ = find(q);
-    if (rootP == rootQ) {
+    p = find(p), q = find(q);
+    if (p == q) {
       return false;
     }
-    parent[rootQ] = rootP;
-    size[rootP] += size[rootQ];
+    parent[q] = p;
+    sizes[p] += sizes[q];
     return true;
   }
 
-public:
-  // 0. Sort the edges, first by descending musti, second by descending strength
-  // 1. unite all the edges with musti == 1(and check if there's redundant edge)
-  // 2. unite the edges with musti == 0
-  int maxStability(int n, vector<vector<int>>& edges, int k) {
-    int m = edges.size(), numConnectedEdges = 0, i = 0, numOptional = 0;
-    bool hasMust = false;
-    vector<int> minStabs {};
-    init(n, edges);
-    // the first several edges are compulsory
-    while (i < m and edges[i][MUST] == 1) {
-      auto& edge = edges[i++];
-      if (!unite(edge[U], edge[V])) {
-        return -1;
-      }
-    }
-    if (i != 0) {
-      minStabs.push_back(edges[i - 1][STR]);
-      hasMust = true;
-    }
-    numConnectedEdges = i;
-    while (i < m) { // now edges[i][MUST] == 0
-      auto& edge = edges[i++];
-      if (unite(edge[U], edge[V])) {
-        minStabs.push_back(edge[STR]);
-        ++numOptional;
-        if (++numConnectedEdges == n - 1) {
-          if (k == 0) {
-              return min(minStabs[0], minStabs[numOptional]);
-          }
-          else {
-            if (numOptional <= k) {
-              if (hasMust) {
-                return min(minStabs[0], minStabs[numOptional] * 2);
-              }
-              else {
-                return minStabs[numOptional] * 2;
-              }
-            }
-            else {
-              return min(min(minStabs[0], minStabs[numOptional - k]), minStabs[numOptional] * 2);
-            }
-          }
+  int getTreeSize() {
+    return sizes[find(0)];
+  }
+
+};
+
+class Solution {
+private:
+  int minStr = INT_MAX;
+  static constexpr int U = 0;
+  static constexpr int V = 1;
+  static constexpr int STR = 2;
+  static constexpr int MUST = 3;
+
+  bool connectCompulsoryEdges(vector<vector<int>>& edges, priority_queue<vector<int>>& pq, UnionFind& uf) {
+    for (auto& e : edges) {
+      if (e[MUST]) {
+        minStr = min(minStr, e[STR]);
+        if (!uf.unite(e[U], e[V])) {
+          return false;
         }
       }
+      else {
+        pq.push({e[STR], e[U], e[V]});
+      }
     }
-    return -1;
+    return true;
+  }
+
+  stack<int> connectOptionalEdges(priority_queue<vector<int>>& pq, UnionFind& uf) {
+    stack<int> st;
+    while (!pq.empty()) {
+      int str = pq.top()[0], p = pq.top()[1], q = pq.top()[2];
+      pq.pop();
+      if (uf.unite(p, q)) {
+        st.push(str);
+      }
+    }
+    return st;
+  }
+
+public:
+  int maxStability(int n, vector<vector<int>>& edges, int k) {
+    priority_queue<vector<int>> pq;
+    UnionFind uf(n);
+    if (!connectCompulsoryEdges(edges, pq, uf)) {
+      return -1;
+    }
+    stack<int> st = connectOptionalEdges(pq, uf);
+    if (uf.getTreeSize() != n) {
+      return -1;
+    }
+    while (!st.empty()) {
+      minStr = min(minStr, (st.top() << (k > 0)));
+      st.pop();
+      --k;
+    }
+    return minStr;
   }
 };
 // @leet end
