@@ -1,14 +1,11 @@
 // @leet start
 #include <algorithm>
 #include <cstdlib>
-#include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 using std::vector, std::sort;
 using std::abs;
 using std::pair, std::make_pair;
-using std::unordered_map, std::string, std::to_string;
 
 using Point = pair<int, int>;
 // the indices of two pointers and the distance
@@ -17,7 +14,7 @@ using Edge = pair<pair<int, int>, int>;
 class Solution {
 private:
   vector<Edge> edges {};
-  vector<int> parent {}, size {};    // use indices instead of points
+  vector<int> parent {};    // use indices instead of points
 
   int getDistance(Point& p, Point& q) {
     return abs(p.first - q.first) + abs(p.second - q.second);
@@ -25,7 +22,6 @@ private:
 
   int find(int x) {
     while (parent[x] != x) {
-      parent[x] = parent[parent[x]];
       x = parent[x];
     }
     return x;
@@ -33,7 +29,6 @@ private:
 
   // sort the edges by distance, initialize the parent, size
   void preProcess(vector<vector<int>>& points, int num) {
-    size.resize(num, 1);
     parent.reserve(num);
     edges.reserve((num - 1) * num / 2);
     for (int i = 0; i < num; ++i) {
@@ -55,14 +50,7 @@ private:
     if (rootP == rootQ) {
       return false;   // they are already connected
     }
-    if (size[rootP] > size[rootQ]) {
-      parent[rootQ] = rootP;
-      size[rootP] += size[rootQ];
-    }
-    else {
-      parent[rootP] = rootQ;
-      size[rootQ] += size[rootP];
-    }
+    parent[rootQ] = rootP;
     return true;
   }
 
