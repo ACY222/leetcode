@@ -61,9 +61,8 @@ private:
     resetUnionFind();
     int total = 0, connected = 0;
     for (auto& edge : edges) {
-      if (edge[IDX] == targetEdge[IDX]) {
-        continue;
-      }
+      if (edge[IDX] == targetEdge[IDX]) continue;
+
       if (unite(edge[U], edge[V])) {
         total += edge[W];
         if (++connected == n - 1) break;
@@ -77,9 +76,8 @@ private:
     unite(targetEdge[U], targetEdge[V]);
     int total = targetEdge[W], connected = 1;
     for (auto& edge : edges) {
-      if (edge[IDX] == targetEdge[IDX]) {
-        continue;
-      }
+      if (edge[IDX] == targetEdge[IDX]) continue;
+
       if (unite(edge[U], edge[V])) {
         total += edge[W];
         if (++connected == n - 1) break;
