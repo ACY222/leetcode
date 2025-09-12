@@ -14,26 +14,26 @@ using Edge = pair<pair<int, int>, int>;
 class Solution {
 private:
   vector<Edge> edges {};
-  vector<int> parent {};    // use indices instead of points
+  vector<int> ufParent {};    // use indices instead of points
 
   int getDistance(Point& p, Point& q) {
     return abs(p.first - q.first) + abs(p.second - q.second);
   }
 
   int find(int x) {
-    while (parent[x] != x) {
-      x = parent[x];
+    while (ufParent[x] != x) {
+      x = ufParent[x];
     }
     return x;
   }
 
   // sort the edges by distance, initialize the parent, size
   void preProcess(vector<vector<int>>& points, int num) {
-    parent.reserve(num);
+    ufParent.reserve(num);
     edges.reserve((num - 1) * num / 2);
     for (int i = 0; i < num; ++i) {
       Point p = make_pair(points[i][0], points[i][1]);
-      parent.push_back(i);
+      ufParent.push_back(i);
       for (int j = i + 1; j < num; ++j) {
         Point q = make_pair(points[j][0], points[j][1]);
         Edge edge = make_pair(make_pair(i, j), getDistance(p, q));
@@ -45,12 +45,12 @@ private:
     sort(edges.begin(), edges.end(), compare);
   }
 
-  bool connect(int p, int q) {
+  bool unite(int p, int q) {
     int rootP = find(p), rootQ = find(q);
     if (rootP == rootQ) {
       return false;   // they are already connected
     }
-    parent[rootQ] = rootP;
+    ufParent[rootQ] = rootP;
     return true;
   }
 
@@ -61,7 +61,7 @@ public:
 
     for (auto iter = edges.begin(); iter != edges.end() and numEdges < num - 1; ++iter) {
       auto [p, q] = iter->first;
-      if (connect(p, q)) {
+      if (unite(p, q)) {
         ++numEdges;
         totalDistance += iter->second;
       }
