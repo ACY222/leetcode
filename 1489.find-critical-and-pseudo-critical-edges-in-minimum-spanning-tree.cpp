@@ -1,115 +1,110 @@
 // @leet start
 #include <algorithm>
-#include <utility>
 #include <vector>
-using std::vector;
-using std::sort;
-using std::pair, std::make_pair;
+#include <numeric>
+using namespace std;
 class Solution {
 private:
-  vector<int> parent;
-  vector<vector<int>> res = {{}, {}};
+  vector<int> ufParent;
+  vector<vector<int>> criticalAndPseudo;
+
+  static constexpr int U = 0;
+  static constexpr int V = 1;
+  static constexpr int W = 2;
+  static constexpr int IDX = 3;
+
+
+  void resetUnionFind() {
+    iota(ufParent.begin(), ufParent.end(), 0);
+  }
 
   // initialize parent to be [0:n] and sort edges
-  void init(int numNodes, int numEdges, vector<vector<int>>& edges) {
-    parent.reserve(numNodes);
-    for (int i = 0; i < numNodes; ++i) {
-      parent.push_back(i);
+  void init(int n, vector<vector<int>>& edges) {
+    ufParent.resize(n);
+    resetUnionFind();
+    for (int i = 0; i < edges.size(); ++i) {
+      edges[i].push_back(i);  // now edge[IDX] is its original index
     }
-    for (int i = 0; i < numEdges; ++i) {
-      edges[i].push_back(i);  // now edge[3] is its original index
-    }
-    auto compare = [](vector<int>& u, vector<int>& v) { return u[2] < v[2]; };
+    auto compare = [](vector<int>& a, vector<int>& b) { return a[W] < b[W]; };
     sort(edges.begin(), edges.end(), compare);
   }
 
   int find(int x) {
-    while (x != parent[x]) {
-      parent[x] = parent[parent[x]];
-      x = parent[x];
+    while (x != ufParent[x]) {
+      ufParent[x] = ufParent[ufParent[x]];
+      x = ufParent[x];
     }
     return x;
   }
 
-  bool connect(int p, int q) {
+  bool unite(int p, int q) {
     int rootP = find(p), rootQ = find(q);
     if (rootP == rootQ) {
       return false;
     }
-    parent[rootQ] = rootP;
+    ufParent[rootQ] = rootP;
     return true;
   }
 
-  int Kruskal(int numNodes, int numEdges, vector<vector<int>>& edges) {
+  int Kruskal(int n, vector<vector<int>>& edges) {
     int total = 0, num = 0;
-    for (vector<int>& edge : edges) {
-      if (connect(edge[0], edge[1])) {  // if we can connect them
-        total += edge[2];
-        ++num;
+    for (auto& edge : edges) {
+      if (unite(edge[U], edge[V])) {  // if we can unite them
+        total += edge[W];
+        if (++num == n - 1) break;
       }
     }
     return total;
   }
 
-  void checkCriticalKruskal(int numNodes, int numEdges, vector<vector<int>>& edges, vector<int>& _edge, int distance) {
-    // check if it's critical edge by skipping the edge, and check if the
-    // distance increase
-    for (int i = 0; i < numNodes; ++i) {
-      parent[i] = i;
-    }
-    int total = 0, num = 0;
-    for (vector<int>& edge : edges) {
-      if (edge == _edge) {    // skip current edge
-        continue;
-      }
-      if (connect(edge[0], edge[1])) {
-        total += edge[2];
-        ++num;
-        if (num == numNodes - 1) {
-          break;
-        }
-      }
-    }
-    if (total > distance or num < numNodes - 1) {
-      res[0].push_back(_edge[3]); // so we must use this edge
-      return;
-    }
-    // check if it's pseudo critical edge by accepting it, and see if the
-    // distance is same with minDistance
-    for (int i = 0; i < numNodes; ++i) {
-      parent[i] = i;
-    }
-    connect(_edge[0], _edge[1]);  // connect this edge at first
-    total = _edge[2], num = 1;
+  bool isCritical(int n, vector<vector<int>>& edges, vector<int>& targetEdge, int minTotal) {
+    resetUnionFind();
+    int total = 0, connected = 0;
     for (auto& edge : edges) {
-      if (edge == _edge) {
+      if (edge[IDX] == targetEdge[IDX]) {
         continue;
       }
-      if (connect(edge[0], edge[1])) {
-        total += edge[2];
-        ++num;
-        if (num == numNodes - 1) {
-          break;
-        }
+      if (unite(edge[U], edge[V])) {
+        total += edge[W];
+        if (++connected == n - 1) break;
       }
     }
-    if (total == distance) {
-      res[1].push_back(_edge[3]);
-      return;
-    }
+    return (total > minTotal) or (connected < n - 1);
   }
 
+  bool isPseudoCritical(int n, vector<vector<int>>& edges, vector<int>& targetEdge, int minTotal) {
+    resetUnionFind()  ;
+    unite(targetEdge[U], targetEdge[V]);
+    int total = targetEdge[W], connected = 1;
+    for (auto& edge : edges) {
+      if (edge[IDX] == targetEdge[IDX]) {
+        continue;
+      }
+      if (unite(edge[U], edge[V])) {
+        total += edge[W];
+        if (++connected == n - 1) break;
+      }
+    }
+    return total == minTotal;
+  }
 
 public:
+  // use constructor!
+  Solution() : criticalAndPseudo(2) {}
   // n is the number of nodes
   vector<vector<int>> findCriticalAndPseudoCriticalEdges(int n, vector<vector<int>>& edges) {
-    int m = edges.size(), minDistance;     // m is numEdges
-    init(n, m, edges);
-    minDistance = Kruskal(n, m, edges);
-    for (vector<int>& edge : edges) {
-      checkCriticalKruskal(n, m, edges, edge, minDistance);
+    init(n, edges);
+
+    int minTotal = Kruskal(n, edges);
+    for (auto& edge : edges) {
+      if (isCritical(n, edges, edge, minTotal)) {
+        criticalAndPseudo[0].push_back(edge[IDX]);
+      }
+      else if (isPseudoCritical(n, edges, edge, minTotal)) {
+        criticalAndPseudo[1].push_back(edge[IDX]);
+      }
     }
-    return res;
+    return criticalAndPseudo;
   }
 };
 // @leet end
