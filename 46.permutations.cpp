@@ -1,33 +1,27 @@
 // @leet start
-#include <list>
+#include <utility>
 #include <vector>
 using namespace std;
 class Solution {
 private:
   vector<vector<int>> res;
 
-  void traverse(const vector<int>& nums, list<int>& track, vector<bool>& used) {
-    if (track.size() == nums.size()) {
-      // convert the list to a vector and push it into res
-      res.push_back(vector<int>(track.begin(), track.end()));
+  // start is the beginning of the left part of the vector, the left part has
+  // been determined
+  void backtrack(vector<int>& nums, int start) {
+    if (start == nums.size()) {
+      res.push_back(nums);
     }
 
-    for (int i = 0; i < nums.size(); ++i) {
-      if (used[i]) {
-        continue;
-      }
-      track.push_back(nums[i]);
-      used[i] = true;
-      traverse(nums, track, used);
-      track.pop_back();
-      used[i] = false;
+    for (int i = start; i < nums.size(); ++i) {
+      swap(nums[start], nums[i]);
+      backtrack(nums, start + 1);
+      swap(nums[start], nums[i]);
     }
   }
 public:
   vector<vector<int>> permute(vector<int>& nums) {
-    list<int> track;
-    vector<bool> used(nums.size(), false);
-    traverse(nums, track, used);
+    backtrack(nums, 0);
     return res;
   }
 };
