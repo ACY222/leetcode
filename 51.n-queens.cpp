@@ -1,65 +1,52 @@
 // @leet start
-#include <string>
 #include <vector>
 using namespace std;
+
 class Solution {
 private:
-  vector<vector<int>> res;
-  vector<vector<string>> finalRes;
+  vector<vector<string>> output;    // used to store the results
 
-  bool isValid(const vector<int>& nums, int row, int col) {
-    for (int _row = 0; _row < row; ++_row) {
-      int _col = nums[_row];
-      if (_col == col or _row + _col == row + col or _row - _col == row - col) {
+  bool isValidPos(vector<string>& board, int row, int col, int n) {
+    // check if there's a queen in the same column
+    for (int i = 0; i < row; ++i) {
+      if (board[i][col] == 'Q') {
+        return false;
+      }
+    }
+    // check if there's a queen in the same upper-left diagonal
+    for (int i = row - 1, j = col - 1; i >= 0 and j >= 0; --i, --j) {
+      if (board[i][j] == 'Q') {
+        return false;
+      }
+    }
+    // check if there's a queen in the same upper-right diagonal
+    for (int i = row - 1, j = col + 1; i >= 0 and j < n; --i, ++j) {
+      if (board[i][j] == 'Q') {
         return false;
       }
     }
     return true;
   }
 
-  void backtrack(vector<int>& nums, int row, int n) {
+  void backtrack(vector<string>& board, int row, int n) {
     if (row == n) {
-      res.push_back(nums);
+      output.push_back(board);
     }
 
-    for (int col = 0; col < n; ++ col) {
-      if (isValid(nums, row, col)) {
-        nums.push_back(col);
-        backtrack(nums, row + 1, n);
-        nums.pop_back();
+    for (int col = 0; col < n; ++col) {
+      if (isValidPos(board, row, col, n)) {
+        board[row][col] = 'Q';
+        backtrack(board, row + 1, n);
+        board[row][col] = '.';
       }
-    }
-  }
-
-  void convertToString(int n) {
-    for (const vector<int>& singleRes : res) {
-      vector<string> singleFinalRes;
-      for (const int num : singleRes) {
-        string prefix, postfix;
-        if (num == 0) {
-          prefix = "";
-          postfix = string(n - 1, '.');
-        }
-        else if (num == n - 1) {
-          prefix = string(n - 1, '.');
-          postfix = "";
-        }
-        else {
-          prefix = string(num, '.');
-          postfix = string(n - num - 1, '.');
-        }
-        singleFinalRes.push_back(prefix + "Q" + postfix);
-      }
-      finalRes.push_back(singleFinalRes);
     }
   }
 
 public:
   vector<vector<string>> solveNQueens(int n) {
-    vector<int> nums;
-    backtrack(nums, 0, n);
-    convertToString(n);
-    return finalRes;
+    vector<string> board(n, string(n, '.'));
+    backtrack(board, 0, n);
+    return output;
   }
 };
 // @leet end
