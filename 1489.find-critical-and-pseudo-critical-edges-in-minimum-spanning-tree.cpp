@@ -1,85 +1,94 @@
 // @leet start
 #include <algorithm>
-#include <vector>
 #include <numeric>
+#include <vector>
+
 using namespace std;
 class Solution {
 private:
-  vector<int> ufParent;
+  vector<int> parent;
   vector<vector<int>> criticalAndPseudo;
 
-  static constexpr int U = 0;
-  static constexpr int V = 1;
+  static constexpr int P = 0;
+  static constexpr int Q = 1;
   static constexpr int W = 2;
   static constexpr int IDX = 3;
 
-
   void resetUnionFind() {
-    iota(ufParent.begin(), ufParent.end(), 0);
+    iota(parent.begin(), parent.end(), 0);
   }
 
-  // initialize parent to be [0:n] and sort edges
-  void init(int n, vector<vector<int>>& edges) {
-    ufParent.resize(n);
+  // initialize parent, sizes and sort edges by non-decending weight
+  void init(vector<vector<int>>& edges, int n) {
+    parent.resize(n);
     resetUnionFind();
     for (int i = 0; i < edges.size(); ++i) {
-      edges[i].push_back(i);  // now edge[IDX] is its original index
+      edges[i].push_back(i);    // record the original indices for all edges
     }
-    auto compare = [](vector<int>& a, vector<int>& b) { return a[W] < b[W]; };
+    auto compare = [](vector<int>& a , vector<int>& b) { return a[W] < b[W]; };
     sort(edges.begin(), edges.end(), compare);
+    return;
   }
 
   int find(int x) {
-    while (x != ufParent[x]) {
-      ufParent[x] = ufParent[ufParent[x]];
-      x = ufParent[x];
+    while (parent[x] != x) {
+      parent[x] = parent[parent[x]];
+      x = parent[x];
     }
     return x;
   }
 
   bool unite(int p, int q) {
-    int rootP = find(p), rootQ = find(q);
-    if (rootP == rootQ) {
+    p = find(p), q = find(q);
+    if (p == q) {
       return false;
     }
-    ufParent[rootQ] = rootP;
+    parent[q] = p;
     return true;
   }
 
-  int Kruskal(int n, vector<vector<int>>& edges) {
-    int total = 0, num = 0;
-    for (auto& edge : edges) {
-      if (unite(edge[U], edge[V])) {  // if we can unite them
-        total += edge[W];
-        if (++num == n - 1) break;
+  int Kruskal(vector<vector<int>>& edges, int n) {
+    int num = 0, total = 0; // num is the number of connected edges
+    for (auto& e : edges) {
+      if (unite(e[P], e[Q])) {
+        total += e[W];
+        if (++num == n - 1) {
+          return total;
+        }
       }
     }
-    return total;
+    return -1;
   }
 
-  bool isCritical(int n, vector<vector<int>>& edges, vector<int>& targetEdge, int minTotal) {
+  bool isCritical(vector<vector<int>>& edges, vector<int>& edge, int n, int minTotal) {
     resetUnionFind();
-    int total = 0, connected = 0;
-    for (auto& edge : edges) {
-      if (edge[IDX] == targetEdge[IDX]) continue;
-
-      if (unite(edge[U], edge[V])) {
-        total += edge[W];
-        if (++connected == n - 1) break;
+    // skip the edge and check if the total increase or if we can connect all
+    // the vertices
+    int connected = 0, total = 0;
+    for (auto& e : edges) {
+      if (e[IDX] == edge[IDX]) {
+        continue;
+      }
+      if (unite(e[P], e[Q])) {
+        total += e[W];
+        ++connected;
       }
     }
-    return (total > minTotal) or (connected < n - 1);
+    return (total > minTotal) or (connected != n - 1);
   }
 
-  bool isPseudoCritical(int n, vector<vector<int>>& edges, vector<int>& targetEdge, int minTotal) {
-    resetUnionFind()  ;
-    unite(targetEdge[U], targetEdge[V]);
-    int total = targetEdge[W], connected = 1;
-    for (auto& edge : edges) {
-      if (edge[IDX] == targetEdge[IDX]) continue;
-
-      if (unite(edge[U], edge[V])) {
-        total += edge[W];
+  bool isPseudoCritical(vector<vector<int>>& edges, vector<int>& edge, int n, int minTotal) {
+    resetUnionFind();
+    // if the edge is not critical
+    // accept the edge and check if the total stay the same
+    unite(edge[P], edge[Q]);
+    int connected = 1, total = edge[W];
+    for (auto& e : edges) {
+      if (e[IDX] == edge[IDX]) {
+        continue;
+      }
+      if (unite(e[P], e[Q])) {
+        total += e[W];
         if (++connected == n - 1) break;
       }
     }
@@ -87,18 +96,15 @@ private:
   }
 
 public:
-  // use constructor!
   Solution() : criticalAndPseudo(2) {}
-  // n is the number of nodes
   vector<vector<int>> findCriticalAndPseudoCriticalEdges(int n, vector<vector<int>>& edges) {
-    init(n, edges);
-
-    int minTotal = Kruskal(n, edges);
+    init(edges, n);
+    int total = Kruskal(edges, n);
     for (auto& edge : edges) {
-      if (isCritical(n, edges, edge, minTotal)) {
+      if (isCritical(edges, edge, n, total)) {
         criticalAndPseudo[0].push_back(edge[IDX]);
       }
-      else if (isPseudoCritical(n, edges, edge, minTotal)) {
+      else if (isPseudoCritical(edges, edge, n, total)) {
         criticalAndPseudo[1].push_back(edge[IDX]);
       }
     }
