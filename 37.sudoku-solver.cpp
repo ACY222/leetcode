@@ -24,14 +24,14 @@ private:
     return true;
   }
 
-  bool backtrack(vector<vector<char>>& board) {
-    for (int row = 0; row < N; ++row) {
+  bool backtrack(vector<vector<char>>& board, int startRow) {
+    for (int row = startRow; row < N; ++row) {
       for (int col = 0; col < N; ++col) {
         if (board[row][col] == '.') {
           for (char num = '1'; num <= '9'; ++num) {
             if (isValid(board, row, col, num)) {
               board[row][col] = num;
-              if (backtrack(board)) {
+              if (backtrack(board, row)) {
                 return true;
               }
               board[row][col] = '.';
@@ -45,7 +45,7 @@ private:
   }
 public:
   void solveSudoku(vector<vector<char>>& board) {
-    backtrack(board);
+    backtrack(board, 0);
   }
 };
 // @leet end
