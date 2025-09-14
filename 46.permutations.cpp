@@ -1,24 +1,25 @@
 // @leet start
-#include <utility>
+#include <algorithm>
 #include <vector>
 using namespace std;
+
 class Solution {
 private:
   vector<vector<int>> res;
 
-  // start is the beginning of the left part of the vector, the left part has
-  // been determined
-  void backtrack(vector<int>& nums, int start) {
+  void backtrack(vector<int>& nums, const int start) {
     if (start == nums.size()) {
       res.push_back(nums);
+      return;
     }
 
     for (int i = start; i < nums.size(); ++i) {
-      swap(nums[start], nums[i]);
+      swap(nums[i], nums[start]);
       backtrack(nums, start + 1);
-      swap(nums[start], nums[i]);
+      swap(nums[i], nums[start]);
     }
   }
+
 public:
   vector<vector<int>> permute(vector<int>& nums) {
     backtrack(nums, 0);
