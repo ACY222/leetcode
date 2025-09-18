@@ -1,45 +1,41 @@
 // @leet start
-#include <algorithm>
+#include <unordered_set>
+#include <utility>
 #include <vector>
 using namespace std;
 
 class Solution {
 private:
-    vector<vector<int>> results;
-    vector<bool> used;
+    vector<vector<int>> res;
 
-    void backtrack(const vector<int>& nums, vector<int>& path) {
-        if (path.size() == nums.size()) {
-            results.push_back(path);
+    void backtrack(vector<int>& nums, int start) {
+        if (start == nums.size()) {
+            res.push_back(nums);
             return;
         }
 
-        for (int i = 0; i < nums.size(); ++i) {
-            if (used[i]) {
+        // record the values used in current layer
+        unordered_set<int> used_val;
+        for (int i = start; i < nums.size(); ++i) {
+            // skip used numbers
+            if (used_val.count(nums[i])) {
                 continue;
             }
-            // if the last number is same to current and not used
-            if (i > 0 and nums[i - 1] == nums[i] and !used[i - 1]) {
+            // skip if the number == current number
+            if (i != start and nums[i] == nums[start]) {
                 continue;
             }
-            //
-            used[i] = true;
-            path.push_back(nums[i]);
-
-            backtrack(nums, path);
-
-            used[i] = false;
-            path.pop_back();
+            used_val.insert(nums[i]);
+            swap(nums[i], nums[start]);
+            backtrack(nums, start + 1);
+            used_val.erase(nums[i]);
+            swap(nums[i], nums[start]);
         }
     }
-
 public:
     vector<vector<int>> permuteUnique(vector<int>& nums) {
-        used.resize(nums.size());
-        vector<int> path;
-        sort(nums.begin(), nums.end());
-        backtrack(nums, path);
-        return results;
+        backtrack(nums, 0);
+        return res;
     }
 };
 // @leet end
