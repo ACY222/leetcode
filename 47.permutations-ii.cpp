@@ -1,38 +1,44 @@
 // @leet start
-#include <unordered_set>
-#include <utility>
+#include <algorithm>
 #include <vector>
 using namespace std;
 
 class Solution {
 private:
     vector<vector<int>> results;
+    vector<bool> used;
 
-    void backtrack(vector<int>& nums, int start) {
-        if (start == nums.size()) {
-            for (auto& res : results) {
-                if (res == nums) {
-                    return;
-                }
-            }
-            results.push_back(nums);
+    void backtrack(const vector<int>& nums, vector<int>& path) {
+        if (path.size() == nums.size()) {
+            results.push_back(path);
             return;
         }
 
-        for (int i = start; i < nums.size(); ++i) {
-            // just swap the numbers that are different or stay in place
-            if (i != start and nums[i] == nums[start]) {
+        for (int i = 0; i < nums.size(); ++i) {
+            if (used[i]) {
                 continue;
             }
-            swap(nums[i], nums[start]);
-            backtrack(nums, start + 1);
-            swap(nums[i], nums[start]);
+            // if the last number is same to current and not used
+            if (i > 0 and nums[i - 1] == nums[i] and !used[i - 1]) {
+                continue;
+            }
+            //
+            used[i] = true;
+            path.push_back(nums[i]);
+
+            backtrack(nums, path);
+
+            used[i] = false;
+            path.pop_back();
         }
     }
 
 public:
     vector<vector<int>> permuteUnique(vector<int>& nums) {
-        backtrack(nums, 0);
+        used.resize(nums.size());
+        vector<int> path;
+        sort(nums.begin(), nums.end());
+        backtrack(nums, path);
         return results;
     }
 };
