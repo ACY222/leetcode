@@ -3,57 +3,56 @@
 #include <vector>
 #include <utility>
 using namespace std;
-
 class Solution {
 private:
     vector<vector<int>> res;
 
-    void backtrack(const vector<pair<int, int>>& group, vector<int>& path, int start, int target) {
+    void backtrack(const vector<pair<int, int>>& valueAndCount,
+                   vector<int>& path, int start, int target) {
         if (target == 0) {
             res.push_back(path);
             return;
         }
 
-        for (int i = start; i < group.size(); ++i) {
-            int val = group[i].first;
-            int count = group[i].second;
-            if (val > target) {
-                break;
+        for (int i = start; i < valueAndCount.size(); ++i) {
+            int value = valueAndCount[i].first;
+            int count = valueAndCount[i].second;
+            if (value > target) {
+                return;
             }
-            int max_count = min(count, target / val);
-            for (int k = 1; k <= max_count; ++k) {
+            int maxCount = min(count, target / value);
+
+            for (int k = 1; k <= maxCount; ++k) {
                 for (int l = 0; l < k; ++l) {
-                    path.push_back(val);
+                    path.push_back(value);
                 }
-
-                backtrack(group, path, i + 1, target - k * val);
-
+                backtrack(valueAndCount, path, i + 1, target - k * value);
                 for (int l = 0; l < k; ++l) {
                     path.pop_back();
                 }
             }
         }
     }
+
 public:
-    // this problem is quite similar to last one
     vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
-        vector<pair<int, int>> group;   // num and its count
+        vector<pair<int, int>> valueAndCount;
         vector<int> path;
         sort(candidates.begin(), candidates.end());
         for (int i = 0; i < candidates.size(); ++i) {
-            if (candidates[i] > target) {   // the last numbers are too big
+            // if the rest of the candidats are too big, just skip them
+            if (candidates[i] > target) {
                 break;
             }
-
-            // if we find new number
-            if (group.empty() or group.back().first != candidates[i]) {
-                group.emplace_back(candidates[i], 1);
+            // if this is a new number
+            if (valueAndCount.empty() or valueAndCount.back().first != candidates[i]) {
+                valueAndCount.emplace_back(candidates[i], 1);
             }
-            else {
-                ++group.back().second;
+            else {  // if we have seen this number before
+                ++valueAndCount.back().second;
             }
         }
-        backtrack(group, path, 0, target);
+        backtrack(valueAndCount, path, 0, target);
         return res;
     }
 };
