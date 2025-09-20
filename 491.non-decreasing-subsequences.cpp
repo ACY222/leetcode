@@ -24,12 +24,6 @@ private:
             backtrack(nums, path, index + 1);
             path.pop_back();
         }
-        // skip the rest of group in which all the nums share the same value
-        // while (index + 1 < nums.size() and
-        //     nums[index] == nums[index + 1]) {
-        //     ++index;
-        // }
-        // the case without nums[start]
         backtrack(nums, path,  index + 1);
     }
 public:
