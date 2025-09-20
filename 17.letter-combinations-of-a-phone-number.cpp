@@ -5,7 +5,7 @@ using namespace std;
 class Solution {
 private:
     vector<string> res;
-    vector<vector<char>> map {{'a', 'b', 'c'}, {'d', 'e', 'f'}, {'h', 'g', 'i'}, {'j', 'k', 'l'}, {'m', 'n', 'o'}, {'p', 'q', 'r', 's'}, {'t', 'u', 'v'}, {'w', 'x', 'y', 'z'}};
+    vector<string> map {"abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxzy"};
 
     void backtrack(string& digits, int start) {
         if (start == digits.size()) {
@@ -21,7 +21,6 @@ private:
         digits[start] = digit;
     }
 public:
-    // 九键映射
     vector<string> letterCombinations(string digits) {
         if (digits.empty()) {
             return {};
