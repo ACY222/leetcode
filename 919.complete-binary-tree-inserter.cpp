@@ -11,40 +11,44 @@
  * };
  */
 
+#include <vector>
 #include <queue>
 using namespace std;
 
 class CBTInserter {
 private:
     TreeNode* root;
+    vector<TreeNode*> nodes;
 
-public:
-    // "root" is the root of the complete binary tree
-    CBTInserter(TreeNode* root) : root(root) {}
-
-    // insert a treenode into the tree so that the tree remains complete,
-    // return the value of the parent of the inserted treenode
-    int insert(int val) {
+    void initialize(TreeNode* root) {
+        if (!root) return;
         queue<TreeNode*> q;
         q.push(root);
         TreeNode* curr;
-
-        while(!q.empty()) {
+        while (!q.empty()) {
             curr = q.front();
             q.pop();
-
-            if (!curr->left) {
-                curr->left = new TreeNode(val);
-                return curr->val;
-            }
-            if (!curr->right) {
-                curr->right = new TreeNode(val);
-                return curr->val;
-            }
-            q.push(curr->left);
-            q.push(curr->right);
+            nodes.push_back(curr);
+            if (curr->left) q.push(curr->left);
+            if (curr->right) q.push(curr->right);
         }
-        return -1;
+    }
+public:
+    CBTInserter(TreeNode* root) : root(root) {
+        initialize(root);
+    }
+
+    int insert(int val) {
+        TreeNode* parent = nodes[(nodes.size() - 1) / 2];
+        TreeNode* newNode = new TreeNode(val);
+        if (parent->left) {
+            parent->right = newNode;
+        }
+        else {
+            parent->left = newNode;
+        }
+        nodes.push_back(newNode);
+        return parent->val;
     }
 
     TreeNode* get_root() {
