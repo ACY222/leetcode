@@ -10,6 +10,7 @@
  *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
  * };
  */
+
 #include <queue>
 using namespace std;
 
@@ -19,40 +20,35 @@ private:
 
 public:
     // "root" is the root of the complete binary tree
-    CBTInserter(TreeNode* root) {
-        this->root = root;
-    }
+    CBTInserter(TreeNode* root) : root(root) {}
 
     // insert a treenode into the tree so that the tree remains complete,
     // return the value of the parent of the inserted treenode
     int insert(int val) {
         queue<TreeNode*> q;
         q.push(root);
+        TreeNode* curr;
 
         while(!q.empty()) {
-            TreeNode* curr {q.front()};
+            curr = q.front();
             q.pop();
 
-            if (curr->left) {
-                q.push(curr->left);
-            }
-            else {
+            if (!curr->left) {
                 curr->left = new TreeNode(val);
                 return curr->val;
             }
-            if (curr->right) {
-                q.push(curr->right);
-            }
-            else {
+            if (!curr->right) {
                 curr->right = new TreeNode(val);
                 return curr->val;
             }
+            q.push(curr->left);
+            q.push(curr->right);
         }
         return -1;
     }
 
     TreeNode* get_root() {
-        return this->root;
+        return root;
     }
 };
 
