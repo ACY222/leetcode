@@ -6,9 +6,8 @@ class Solution {
 private:
     int step = 0, m, n;
 
-    static constexpr char MARK = '+';
-    const int dx[4] = {0, 0, -1, 1};
-    const int dy[4] = {-1, 1, 0, 0};
+    static constexpr int dx[4] = {0, 0, -1, 1};
+    static constexpr int dy[4] = {-1, 1, 0, 0};
 
 
     inline bool isBorder(int row, int col) {
@@ -19,10 +18,14 @@ private:
         return (row < 0 or row >= m or col < 0 or col >= n);
     }
 
-    bool bfs(vector<vector<char>>& maze, vector<int>& entrance) {
+public:
+    int nearestExit(vector<vector<char>>& maze, vector<int>& entrance) {
+        this->m = maze.size();  // m, n >= 1
+        this->n = maze[0].size();
+
         queue<pair<int, int>> q;
         q.push({entrance[0], entrance[1]});
-        maze[entrance[0]][entrance[1]] = MARK;
+        maze[entrance[0]][entrance[1]] = '+';
 
         while (!q.empty()) {
             ++step;
@@ -36,22 +39,12 @@ private:
                         continue;
                     }
                     if (isBorder(row, col)) {
-                        return true;
+                        return step;
                     }
                     q.push({row, col});
-                    maze[row][col] = MARK;
+                    maze[row][col] = '+';
                 }
             }
-        }
-        return false;
-    }
-
-public:
-    int nearestExit(vector<vector<char>>& maze, vector<int>& entrance) {
-        this->m = maze.size();  // m, n >= 1
-        this->n = maze[0].size();
-        if (bfs(maze, entrance)) {
-            return step;
         }
         return -1;
     }
