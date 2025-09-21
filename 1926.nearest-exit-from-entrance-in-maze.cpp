@@ -7,7 +7,9 @@ private:
     int step = 0, m, n;
 
     static constexpr char MARK = '+';
-    const vector<vector<int>> dirs = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}};
+    const int dx[4] = {0, 0, -1, 1};
+    const int dy[4] = {-1, 1, 0, 0};
+
 
     inline bool isBorder(int row, int col) {
         return (row == 0 or row == m - 1 or col == 0 or col == n - 1);
@@ -28,8 +30,8 @@ private:
                 auto curr = q.front();
                 q.pop();
 
-                for (auto& dir : dirs) {
-                    int row {curr.first + dir[0]}, col {curr.second + dir[1]};
+                for (int i = 0; i < 4; ++i) {
+                    int row {curr.first + dx[i]}, col {curr.second + dy[i]};
                     if (outside(row, col) or maze[row][col] != '.') {
                         continue;
                     }
