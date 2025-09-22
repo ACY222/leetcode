@@ -4,27 +4,35 @@
 using namespace std;
 class Solution {
 private:
-    // nums of coins needed to make up amount
     vector<int> nums;
 
-    void dp(vector<int>& coins, int amount) {
-        nums[0] = 0;
-        for (int i = 1; i <= amount; ++i) {
-            for (const int coin : coins) {
-                if (i - coin < 0) {
-                    continue;
-                }
-                nums[i] = min(nums[i], 1 + nums[i - coin]);
-            }
+    int dp(vector<int>& coins, int amount) {
+        if (amount == 0) {
+            return 0;
         }
-    }
+        if (amount < 0) {
+            return -1;
+        }
+        // check nums to avoid repeating calculations
+        if (nums[amount] != -1) {
+            return nums[amount];
+        }
 
+        int res = amount + 1;
+        for (const int coin : coins) {
+            int subProblem = dp(coins, amount - coin);
+            if (subProblem == -1) {
+                continue;
+            }
+            res = min(res, 1 + subProblem);
+        }
+        nums[amount] = (res == amount + 1) ? -1 : res;
+        return nums[amount];
+    }
 public:
     int coinChange(vector<int>& coins, int amount) {
-        nums.resize(amount + 1, amount + 1);
-        dp(coins, amount);
-        return nums[amount] == amount + 1 ? -1 : nums[amount];
-
+        nums.resize(amount + 1, -1);
+        return dp(coins, amount);
     }
 };
 // @leet end
