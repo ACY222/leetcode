@@ -31,16 +31,8 @@ public:
     int maxEnvelopes(vector<vector<int>>& envelopes) {
         // sort the envelopes by width in increasing order
         // if width equals, then by height in decreasing order
-        auto compare = [](vector<int> x, vector<int> y) -> bool {
-            if (x[0] < y[0]) {
-                return true;
-            }
-            else if (x[0] == y[0]) {
-                if (x[1] > y[1]) {
-                    return true;
-                }
-            }
-            return false;
+        auto compare = [](vector<int>& x, vector<int>& y) -> bool {
+            return x[0] == y[0] ? x[1] > y[1] : x[0] < y[0];
         };
         sort(envelopes.begin(), envelopes.end(), compare);
 
