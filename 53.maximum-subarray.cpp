@@ -6,17 +6,12 @@ using namespace std;
 class Solution {
 public:
     int maxSubArray(vector<int>& nums) {
+        int maxSum = nums[0], currSum = nums[0];
         for (int i = 1; i < nums.size(); ++i) {
-            nums[i] = nums[i - 1] + nums[i];
+            currSum = nums[i] + (currSum > 0 ? currSum : 0);
+            maxSum = max(maxSum, currSum);
         }
-        // maxSub is the sum of the maximum subarray
-        // minPre is the min of prefix sums
-        int maxSub = nums[0], minPre = 0;
-        for (int i = 0; i < nums.size(); ++i) {
-            maxSub = max(maxSub, nums[i] - minPre);
-            minPre = min(minPre, nums[i]);
-        }
-        return maxSub;
+        return maxSum;
     }
 };
 // @leet end
