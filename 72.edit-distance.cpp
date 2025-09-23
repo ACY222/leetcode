@@ -7,39 +7,39 @@ using namespace std;
 class Solution {
 private:
     int m, n;
-    vector<vector<int>> memo;
+    vector<vector<int>> dp;
 
-    int dp(const string& w1, const string& w2, int i, int j) {
-        // if i == -1 and j == -1, return 0, bingo
-        if (i == -1) return j + 1;
-        if (j == -1) return i + 1;
-
-        if (memo[i][j] != -1) {
-            return memo[i][j];
+    void init() {
+        for (int i = 1; i <= m; ++i) {
+            dp[i][0] = i;
         }
-
-        // if they are same
-        if (w1[i] == w2[j]) {
-            memo[i][j] = dp(w1, w2, i - 1, j - 1);  // skip
+        for (int j = 1; j <= n; ++j) {
+            dp[0][j] = j;
         }
-        // if they are different
-        else {
-            memo[i][j] = min({
-                dp(w1, w2, i - 1, j - 1) + 1,   // replace
-                dp(w1, w2, i, j - 1) + 1,       // insert
-                dp(w1, w2, i - 1, j) + 1        // delete
-            });
-        }
-        return memo[i][j];
-}
+    }
 
 public:
     int minDistance(string word1, string word2) {
         this->m = word1.size();
         this->n = word2.size();
-        memo.resize(m, vector<int>(n, -1)); // -1 to indicate unvisited
+        dp.resize(m + 1, vector<int>(n + 1));
+        init();
 
-        return dp(word1, word2, m - 1, n - 1);
+        for (int i = 1; i <= m; ++i) {
+            for (int j = 1; j <= n; ++j) {
+                if (word1[i - 1] == word2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                }
+                else {
+                    dp[i][j] = min({
+                        dp[i - 1][j] + 1,   // delete
+                        dp[i - 1][j - 1] + 1,// replace
+                        dp[i][j - 1] + 1    // insert
+                    });
+                }
+            }
+        }
+        return dp[m][n];
     }
 };
 // @leet end
