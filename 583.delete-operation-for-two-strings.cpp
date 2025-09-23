@@ -6,34 +6,39 @@ using namespace std;
 class Solution {
 private:
     int m, n;
-    vector<vector<int>> memo;
+    vector<vector<int>> dp;
 
-    int dp(string& w1, string& w2, int r, int c) {
-        if (r < 0) return c + 1;
-        if (c < 0) return r + 1;
-
-        if (memo[r][c] != 0) {
-            return memo[r][c];
+    void init(const string& w1, const string& w2) {
+        this->m = w1.size();
+        this->n = w2.size();
+        dp.resize(m + 1, vector<int>(n + 1));
+        for (int i = 1; i <= m; ++i) {
+            dp[i][0] = i;
         }
-
-        if (w1[r] == w2[c]) {
-            memo[r][c] = dp(w1, w2, r - 1, c - 1);
+        for (int j = 1; j <= n; ++j) {
+            dp[0][j] = j;
         }
-        else {
-            memo[r][c] = min({
-                dp(w1, w2, r - 1, c) + 1,
-                dp(w1, w2, r, c - 1) + 1
-            });
-        }
-        return memo[r][c];
     }
 
 public:
     int minDistance(string word1, string word2) {
-        this->m = word1.size();
-        this->n = word2.size();
-        memo.resize(m, vector<int>(n));
-        return dp(word1, word2, m - 1, n - 1);
+        init(word1, word2);
+
+        for (int i = 1; i <= m; ++i) {
+            for (int j = 1; j <= n; ++j) {
+                // if we don't need to delete current chars
+                if (word1[i - 1] == word2[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1];
+                }
+                else {
+                    dp[i][j] = min({
+                        dp[i - 1][j] + 1,
+                        dp[i][j - 1] + 1
+                    });
+                }
+            }
+        }
+        return dp[m][n];
     }
 };
 // @leet end
