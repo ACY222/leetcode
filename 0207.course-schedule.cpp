@@ -1,51 +1,41 @@
-// @leet start
 #include <vector>
-using std::vector;
+#include <queue>
+
+using namespace std;
+
 class Solution {
-private:
-  vector<bool> visited, onPath;
-  bool hasCycle {false};
-
-  vector<vector<int>> generateGraph(vector<vector<int>>& edges, int num) {
-    vector<vector<int>> graph(num, vector<int>());
-    for (vector<int> edge : edges) {
-      int to = edge[0], from = edge[1];
-      graph[from].push_back(to);
-    }
-    return graph;
-  }
-
-  void traverse(vector<vector<int>>& graph, int s) {
-    if (hasCycle) {
-      return;
-    }
-    if (onPath[s]) {
-      hasCycle = true;
-      return;
-    }
-    if (visited[s]) {
-      return;
-    }
-
-    onPath[s] = true;
-    visited[s] = true;
-    for (int child : graph[s]) {
-      traverse(graph, child);
-    }
-    onPath[s] = false;
-  }
-
 public:
-  bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
-    if (prerequisites.size() == 0) {
-      return true;
+    bool canFinish(int numCourses, vector<vector<int>> &prerequisites) {
+        vector<vector<int>> adj(numCourses);
+        vector<int> indegree(numCourses, 0);
+        int count = 0;
+
+        for (auto& edge : prerequisites) {
+            int from = edge[1], to = edge[0];
+            adj[from].push_back(to);
+            ++indegree[to];
+        }
+
+        queue<int> q;
+        for (int i = 0; i < numCourses; ++i) {
+            if (indegree[i] == 0) {
+                q.push(i);
+            }
+        }
+
+        while (!q.empty()) {
+            int curr = q.front();
+            q.pop();
+            ++count;
+
+            for (auto child : adj[curr]) {
+                --indegree[child];
+                if (indegree[child] == 0) {
+                    q.push(child);
+                }
+            }
+        }
+
+        return count == numCourses;
     }
-    visited.resize(numCourses); onPath.resize(numCourses);
-    vector<vector<int>> graph = generateGraph(prerequisites, numCourses);
-    for (int i = 0; i < numCourses; ++i) {
-      traverse(graph, i);
-    }
-    return !hasCycle;
-  }
 };
-// @leet end
