@@ -1,79 +1,64 @@
 #include <vector>
-#include <array>
 
 using namespace std;
 
-class UnionFind {
-public:
-    vector<int> parent;
-    int count;
-
-    // initializing the union find based on the grid
-    UnionFind(vector<vector<char>>& grid) {
-        int m = grid.size(), n = grid[0].size();
-        count = 0;
-        parent.resize(m * n, -1);
-
-        for (int row = 0; row < m; ++row) {
-            for (int col = 0; col < n; ++col) {
-                // skip if no island
-                if (grid[row][col] == '0') {
-                    continue;
-                }
-                // grid[row][col] == '1'
-                parent[row * n + col] = row * n + col;
-                ++count;
-            }
-        }
-    }
-
-    int find(int x) {
-        if (parent[x] != x) {
-            parent[x] = find(parent[x]);
-        }
-        return parent[x];
-    }
-
-    void unite(int x, int y) {
-        int root_x = find(x), root_y = find(y);
-
-        if (root_x != root_y) {
-            parent[root_x] = root_y;
-            --count;
-        }
-    }
-};
-
 class Solution {
-private:
-    inline bool outside(int row, int col, int m, int n) {
-        return row < 0 or row >= m or col < 0 or col >= n;
-    }
 public:
     int numIslands(vector<vector<char>>& grid) {
         if (grid.empty()) return 0;
 
-        UnionFind uf(grid);
-
         int m = grid.size(), n = grid[0].size(), count = 0;
-        array<array<int, 2>, 2> dirs = {{
-            {0, 1}, {1, 0}
-        }};
+        vector<int> parent(m * n, -1);
+        vector<int> rank(m * n, 0);
 
-        for (int row = 0; row < m; ++row) {
-            for (int col = 0; col < n; ++col) {
-                if (grid[row][col] == '0') {
+        auto find = [&](int i) {
+            int root = i;
+            while (parent[root] != root) {
+                root = parent[root];
+            }
+            // 整条路径压缩
+            while (i != root) {
+                int next = parent[i];
+                parent[i] = root;
+                i = next;
+            }
+            return root;
+        };
+
+        auto unite = [&](int i, int j) {
+            int root_i = find(i);
+            int root_j = find(j);
+            if (root_i != root_j) {
+                // 总是将 秩(rank) 小的树合并到 秩 大的树上
+                // 即将矮树合并到高树上
+                if (rank[root_i] < rank[root_j]) {
+                    swap(root_i, root_j);
+                }
+                parent[root_j] = root_i;
+                if (rank[root_i] == rank[root_j]) {
+                    rank[root_i]++;
+                }
+                count--; // 合并成功，岛屿数量减一
+            }
+        };
+
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                if (grid[r][c] == '0') {
                     continue;
                 }
-                for (auto& dir : dirs) {
-                    int new_row = row + dir[0], new_col = col + dir[1];
-                    if (new_row < m and new_col < n and grid[new_row][new_col] == '1') {
-                        uf.unite(row * n + col, new_row * n + new_col);
-                    }
+                int index = r * n + c;
+                parent[index] = index;
+                ++count;
+
+                if (r > 0 and grid[r - 1][c] == '1') {
+                    unite(index, index - n);
+                }
+                if (c > 0 and grid[r][c - 1] == '1') {
+                    unite(index, index - 1);
                 }
             }
         }
-
-        return uf.count;
+        return count;
     }
 };
