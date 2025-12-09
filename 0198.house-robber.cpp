@@ -1,4 +1,5 @@
 #include <vector>
+#include <array>
 
 using namespace std;
 
@@ -8,18 +9,29 @@ public:
     int rob(vector<int>& nums) {
         // dp[i] is the maximum amount of money you can rob
         // when robbing the i-th house
-        vector<int> dp(nums.size(), 0);
-        for (int i = 0; i < nums.size(); ++i) {
-            if (i > 2) {
-                dp[i] = max(dp[i - 2], dp[i - 3]) + nums[i];
-            }
-            else if (i < 2) {
-                dp[i] = nums[i];
-            }
-            else {  // i == 2
-                dp[2] = nums[0] + nums[2];
-            }
+        if (nums.size() <= 2) {
+            return *max_element(nums.begin(), nums.end());
         }
-        return *max_element(dp.begin(), dp.end());
+        else if (nums.size() == 3) {
+            return max(nums[0] + nums[2], nums[1]);
+        }
+        array<int, 4> dp = {nums[0], nums[1], nums[0] + nums[2], 0};
+        int index = 0;
+        for (int i = 3; i < nums.size(); ++i) {
+            int val0 = dp[index];
+            int val1 = dp[(index + 1) & 3];     // == (index + 1) % 4;
+
+            int write_pos = (index + 3) & 3;
+            dp[write_pos] = max(val0, val1) + nums[i];
+
+            index = (index + 1) & 3;
+        }
+        return max(dp[(index + 2) & 3], dp[(index + 1) & 3]);
     }
 };
+
+int main() {
+    Solution sol;
+    vector<int> nums {1, 2, 3, 1};
+    sol.rob(nums);
+}
