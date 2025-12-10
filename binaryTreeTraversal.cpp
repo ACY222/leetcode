@@ -13,6 +13,11 @@ struct Node {
 };
 
 // root -> left -> right
+// push root
+// while not empty
+//      pop
+//      push right
+//      push left
 vector<int> preorderTraversal(Node *root) {
     if (!root) {
         return {};
@@ -31,6 +36,8 @@ vector<int> preorderTraversal(Node *root) {
 }
 
 // left -> root ->right
+// keep going left and push
+// pop and visit (leaf or node with only right child)
 vector<int> inorderTraversal(Node *root) {
     if (!root) {
         return {};
@@ -49,7 +56,7 @@ vector<int> inorderTraversal(Node *root) {
         // But no matter what it is, curr's val comes first
         st.pop();
         result.push_back(curr->val);
-        // if curr is a left, then next loop we will cope with its parent tree
+        // if curr is a leaf, then next loop we will cope with its parent tree
         // if not, we will cope with its right subtree
         curr = curr->right;
     }
@@ -57,6 +64,10 @@ vector<int> inorderTraversal(Node *root) {
 }
 
 // left -> right -> root
+// push parent
+// check top
+//      if is leaf or prev is its child: pop
+//      else: push its right child and left child
 vector<int> postorderTraversal(Node *root) {
     if (!root) {
         return {};
