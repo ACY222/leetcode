@@ -1,119 +1,53 @@
 // @leet start
 #include <unordered_map>
+#include <utility>
+#include <list>
+
 using std::unordered_map;
-
-class Node {
-public:
-  int key, value;
-  Node *next, *prev;
-  Node(int key, int value) : key(key), value(value), next(nullptr), prev(nullptr) {}
-};
-
-class DoubleLinkedList {
-private:
-  Node* head;
-  Node* tail;
-  int size;
-public:
-  DoubleLinkedList() {
-    head = new Node(0, 0);
-    tail = new Node(0, 0);
-    head->next = tail;
-    tail->prev = head;
-    size = 0;
-  }
-
-  void addLast(Node* node) {
-    node->prev = tail->prev;
-    node->next = tail;
-    tail->prev->next = node;
-    tail->prev = node;
-    ++size;
-  }
-
-  void remove(Node* node) {
-    node->next->prev = node->prev;
-    node->prev->next = node->next;
-    --size;
-  }
-
-  // for we need to update the map, where the key of the node is needed
-  Node* removeFirst() {
-    if (head->next == tail) {
-      return {};  // the list is empty, nothing to remove
-    }
-    Node *firstNode = head->next;
-    head->next = firstNode->next;
-    firstNode->next->prev = head;
-    --size;
-    return firstNode;
-  }
-
-  int getSize() {
-    return size;
-  }
-};
+using std::list;
+using std::pair;
 
 class LRUCache {
 private:
-  // this map maps from the key to the node, no matter where the node is
-  unordered_map<int, Node*> keyToNode;
-  DoubleLinkedList cache;
-  int capacity;
-
-  // make the existing node recently
-  void makeRecently(Node* node) {
-    cache.remove(node);
-    cache.addLast(node);
-    return;
-  }
-
-  // add a new node
-  void addRecently(int key, int value) {
-    Node *node = new Node(key, value);
-    cache.addLast(node);
-    keyToNode[key] = node;
-    return;
-  }
-
-  // remove the first node, and erase the key in the map
-  void removeLeatRecently() {
-    Node *node = cache.removeFirst();
-    keyToNode.erase(node->key);
-    return;
-  }
+    // it maps the key to the node's iterator in cache_list
+    unordered_map<int, list<pair<int, int>>::iterator> key_to_iter;
+    list<pair<int, int>> cache_list;    // key, value
+    int capacity;
 
 public:
-  LRUCache(int capacity) {
-    this->capacity = capacity;
-  }
+    LRUCache(int capacity) : capacity(capacity) {}
 
-  // return the value if the key exists, otherwise, return -1
-  int get(int key) {
-    if (!keyToNode.count(key)) {
-      return -1;
+    // return the value and make it most recent if the key exists
+    // otherwise, return -1
+    int get(int key) {
+        if (key_to_iter.find(key) == key_to_iter.end()) {
+            return -1;
+        }
+        cache_list.splice(cache_list.begin(), cache_list, key_to_iter[key]);
+        return key_to_iter[key]->second;
     }
-    makeRecently(keyToNode[key]);
-    return keyToNode[key]->value;
-  }
 
-  // update the value of the key if the key exists, otherwise, add the key-value
-  // to the cache. If the cache is full, evict the least recently used key
-  void put(int key, int value) {
-    // if the key exists, update the value and move it to the end
-    if (keyToNode.count(key)) {
-      Node* node = keyToNode[key];
-      node->value = value;
-      makeRecently(node);
-      return;
+    // update the value of the key if the key exists, otherwise, add the
+    // key-value to the cache_list. If the cache is full, evict the least recently
+    // used key
+    void put(int key, int value) {
+        // if the key exists, update the value and move it to the end
+        if (key_to_iter.find(key) != key_to_iter.end()) {
+            key_to_iter[key]->second = value;
+            cache_list.splice(cache_list.begin(), cache_list, key_to_iter[key]);
+            return;
+        }
+        // otherwise, add the node to the cache
+        // if the cache is full, remove the least recently used one
+        if (cache_list.size() == capacity) {
+            int key_to_delete = cache_list.back().first;
+            cache_list.pop_back();
+            key_to_iter.erase(key_to_delete);
+        }
+        // add the new one
+        cache_list.emplace_front(key, value);
+        key_to_iter[key] = cache_list.begin();
     }
-    // otherwise, add the node to the cache
-    // if the cache is full, remove the least recently used one
-    if (cache.getSize() == capacity) {
-      removeLeatRecently();
-    }
-    addRecently(key, value);
-  }
 };
 
 /**
