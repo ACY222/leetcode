@@ -10,27 +10,26 @@ struct Node {
     int max;
 
     Node() : min(0), max(0) {}
+    Node(int min, int max) : min(min), max(max) {}
 };
 
 class Solution {
 public:
     int maxProduct(vector<int>& nums) {
-        vector<Node> dp(nums.size());
+        Node prev(nums[0], nums[0]), curr;
         int max_val = INT_MIN;
-
-        dp[0].max = nums[0];
-        dp[0].min = nums[0];
-        max_val = max(max_val, dp[0].max);
+        max_val = max(max_val, prev.max);
         for (int i = 1; i < nums.size(); ++i) {
             if (nums[i] >= 0) {
-                dp[i].max = max(nums[i], nums[i] * dp[i - 1].max);
-                dp[i].min = min(nums[i], nums[i] * dp[i - 1].min);
+                curr.max = max(nums[i], nums[i] * prev.max);
+                curr.min = min(nums[i], nums[i] * prev.min);
             }
             else {
-                dp[i].max = max(nums[i], nums[i] * dp[i - 1].min);
-                dp[i].min = min(nums[i], nums[i] * dp[i - 1].max);
+                curr.max = max(nums[i], nums[i] * prev.min);
+                curr.min = min(nums[i], nums[i] * prev.max);
             }
-            max_val = max(max_val, dp[i].max);
+            max_val = max(max_val, curr.max);
+            prev = curr;
         }
         return max_val;
     }
