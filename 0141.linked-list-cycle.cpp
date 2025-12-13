@@ -7,26 +7,25 @@
  *     ListNode(int x) : val(x), next(NULL) {}
  * };
  */
-#include <unordered_set>
-
-using std::unordered_set;
+// struct ListNode {
+//     int val;
+//     ListNode *next;
+//     ListNode(int x) : val(x), next(nullptr) {}
+// };
 
 class Solution {
 public:
-  bool hasCycle(ListNode *head) {
-    // record the listnode we find
-    unordered_set<ListNode*> nodeWeFound {};
-    ListNode *p {head};
-    while (p != nullptr) {
-      // set compares them by their memory
-      // address, so it won't use their val and next pointers.
-      if (nodeWeFound.count(p)) {
-        return true;
-      }
-      nodeWeFound.insert(p);
-      p = p->next;
+    bool hasCycle(ListNode *head) {
+        ListNode *fast = head, *slow = head;
+        while (fast and fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+
+            if (slow == fast) {
+                return true;
+            }
+        }
+        return false;
     }
-    return false;
-  }
 };
 // @leet end

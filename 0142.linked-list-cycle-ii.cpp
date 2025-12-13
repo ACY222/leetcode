@@ -9,33 +9,29 @@
  */
 class Solution {
 public:
-  ListNode *detectCycle(ListNode *head) {
-    ListNode *fast {head}, *slow {head};
-    while (fast != nullptr && fast->next != nullptr) {
-      fast = fast->next->next;
-      slow = slow->next;
-      if (fast == slow) {   // there is a cycle
-        break;
-      }
+    ListNode *detectCycle(ListNode *head) {
+        ListNode *slow = head, *fast = head;
+        while (fast and fast->next) {
+            fast = fast->next->next;
+            slow = slow->next;
+
+            // break when they meet at the first time
+            if (fast == slow) {
+                break;
+            }
+        }
+
+        if (!fast or !fast->next) {
+            return nullptr;
+        }
+
+        slow = head;
+        while (slow != fast) {
+            slow = slow->next;
+            fast = fast->next;
+        }
+
+        return slow;
     }
-    // if there is no cycle
-    if (fast == nullptr || fast->next == nullptr) {
-      return nullptr;
-    }
-    slow = head;
-    // Slow and fast move forward together, and they will meet at the start
-    // node.
-    // Let's say slow moves k steps in the first loop, then fast moves 2k steps.
-    // And the k more steps are all in the cycle, so k is a multiple of the size
-    // of loop, and k is also the distance from the head to current position
-    // Let's say fast is m steps ahead of the start node, then after k - m
-    // steps, fast will arrive at the start node. And we know that after k - m
-    // steps, slow will arrive at it too. So they will meet there
-    while (slow != fast) {
-      slow = slow->next;
-      fast = fast->next;
-    }
-    return slow;
-  }
 };
 // @leet end
