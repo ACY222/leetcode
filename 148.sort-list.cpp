@@ -31,7 +31,8 @@ public:
     }
 
     ListNode* merge(ListNode* l1, ListNode* l2) {
-        ListNode* dummy = new ListNode(0), *tail = dummy;
+        ListNode dummy(0);
+        ListNode* tail = &dummy;
 
         while (l1 and l2) {
             if (l1->val <= l2->val) {
@@ -46,13 +47,8 @@ public:
         }
 
         // append the remaining list
-        if (l1) {
-            tail->next = l1;
-        }
-        else {
-            tail->next = l2;
-        }
-        return dummy->next;
+        tail->next = l1 ? l1 : l2;
+        return dummy.next;
     }
 };
 // @leet end
