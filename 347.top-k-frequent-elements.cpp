@@ -1,5 +1,4 @@
 // @leet start
-#include <queue>
 #include <unordered_map>
 #include <vector>
 
@@ -14,19 +13,17 @@ public:
             ++freq[num];
         }
 
-        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;    // freq, num
+        vector<vector<int>> buckets(nums.size() + 1);
         for (auto& it : freq) {
-            pq.emplace(it.second, it.first);
-            if (pq.size() > k) {
-                pq.pop();
-            }
+            buckets[it.second].push_back(it.first);
         }
 
         vector<int> res;
         res.reserve(k);
-        while (!pq.empty()) {
-            res.push_back(pq.top().second);
-            pq.pop();
+        for (int i = buckets.size() - 1; i >= 0 and res.size() < k; --i) {
+            for (int num : buckets[i]) {
+                res.push_back(num);
+            }
         }
         return res;
     }
