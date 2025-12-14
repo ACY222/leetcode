@@ -1,23 +1,20 @@
 // @leet start
 #include <algorithm>
+#include <utility>
 #include <vector>
 using namespace std;
 
 class Solution {
 public:
-    static bool comp(vector<int>& a, vector<int>& b) {
-        if (a[0] == b[0]) {
-            return a[1] < b[1];
-        }
-        return a[0] > b[0];
-    }
     vector<vector<int>> reconstructQueue(vector<vector<int>>& people) {
         vector<vector<int>> ans;
-        sort(people.begin(), people.end(), comp);
+        ans.reserve(people.size());
+        sort(people.begin(), people.end(), [](const vector<int>& a, const vector<int>& b) {
+            return a[0] != b[0] ? a[0] > b[0] : a[1] < b[1];
+        });
 
-        for (int i = 0; i < people.size(); ++i) {
-            int offset = people[i][1];
-            ans.insert(ans.begin() + offset, people[i]);
+        for (auto& person : people) {
+            ans.insert(ans.begin() + person[1], std::move(person));
         }
         return ans;
     }
