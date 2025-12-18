@@ -1,4 +1,6 @@
 // @leet start
+#include <algorithm>
+#include <iterator>
 #include <vector>
 #include <iostream>
 
@@ -24,7 +26,11 @@ public:
                 ++row;
             }
             else {
-                --col;
+                auto it = lower_bound(matrix[row].begin(), matrix[row].begin() + col + 1, target);
+                if (it != matrix[row].end() and *it == target) {
+                    return true;
+                }
+                col = distance(matrix[row].begin(), it) - 1;
             }
         }
         return false;
