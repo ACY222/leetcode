@@ -2,67 +2,77 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
-#include <queue>
 
 using namespace std;
 
 class Solution {
 private:
-    bool is_valid(string s) {
-        int count = 0;
-        for (char c : s) {
-            if (c == '(') ++count;
-            else if (c == ')') --count;
+    unordered_set<string> valid_string;
 
-            // we have more close bracket than open bracket, invalid
-            if (count < 0) return false;
+    void dfs(int index, int left_remain, int right_remain, int pair, string& path, const string& s) {
+        // up to now, num(close parenthese) > num(open parenthese), it must be invalid
+        if (pair < 0) return;
 
+        // we have removed too many parentheses
+        if (left_remain < 0 or right_remain < 0) return;
+
+        // if we haved reached the end
+        if (index == s.size()) {
+            // if the string is valid
+            if (left_remain == 0 and right_remain == 0 and pair == 0) {
+                valid_string.insert(path);
+            }
+            // whether valid or not, backtrace
+            return;
         }
-        return count == 0;
+
+        char c = s[index];
+        if (c == '(') {
+            // choice 1: reserve the parenthese
+            path.push_back(c);
+            dfs(index + 1, left_remain, right_remain, pair + 1, path, s);
+            path.pop_back();
+
+            // choice 2: remove the parenthese
+            dfs(index + 1, left_remain - 1, right_remain, pair, path, s);
+        }
+        else if (c == ')') {
+            // choice 1: reserve the parenthese
+            path.push_back(c);
+            dfs(index + 1, left_remain, right_remain, pair - 1, path, s);
+            path.pop_back();
+            // choice 2: remove the parenthese
+            dfs(index + 1, left_remain, right_remain - 1, pair, path, s);
+        }
+        // if c is a letter
+        else {
+            path.push_back(c);
+            dfs(index + 1, left_remain, right_remain, pair, path, s);
+            path.pop_back();
+        }
     }
+
 public:
     vector<string> removeInvalidParentheses(string s) {
-        vector<string> valid_string;
-        unordered_set<string> visited;
-        bool found = false;
-        queue<string> q;
-        q.push(s);
-
-        while (!q.empty()) {
-            if (found) {
-                break;
+        valid_string.clear();
+        int left_remain = 0, right_remain = 0;
+        string path = "";
+        for (char c : s) {
+            if (c == '(') {
+                ++left_remain;
             }
-
-            int size = q.size();
-            for (int i = 0; i < size; ++i) {
-                string curr = q.front();
-                q.pop();
-
-                // if we have found a valid string, we do not need to generate next
-                if (is_valid(curr)) {
-                    valid_string.push_back(curr);
-                    found = true;
+            else if (c == ')') {
+                if (left_remain > 0) {
+                    --left_remain;
                 }
-
-                if (found) continue;
-
-                // generate next string by removing a bracket
-                for (int i = 0; i < curr.size(); ++i) {
-                    if (curr[i] != '(' and curr[i] != ')') {
-                        continue;
-                    }
-
-                    string next = curr.substr(0, i) + curr.substr(i + 1);
-                    // if we have visited the same string
-                    if (visited.find(next) != visited.end()) {
-                        continue;
-                    }
-                    q.push(next);
-                    visited.insert(next);
+                else {
+                    ++right_remain;
                 }
             }
         }
-        return valid_string;
+
+        dfs(0, left_remain ,right_remain, 0, path, s);
+        return vector<string>(valid_string.begin(), valid_string.end());
     }
 };
 // @leet end
