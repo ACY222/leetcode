@@ -10,6 +10,9 @@ private:
     unordered_set<string> valid_string;
 
     void dfs(int index, int left_remain, int right_remain, int pair, string& path, const string& s) {
+        // if there are not enough parentheses to remove
+        if (s.size() - index < left_remain + right_remain) return;
+
         // up to now, num(close parenthese) > num(open parenthese), it must be invalid
         if (pair < 0) return;
 
@@ -27,28 +30,26 @@ private:
         }
 
         char c = s[index];
+        path.push_back(c);
+        // choice 1: reserve the parenthese or letter
         if (c == '(') {
-            // choice 1: reserve the parenthese
-            path.push_back(c);
             dfs(index + 1, left_remain, right_remain, pair + 1, path, s);
-            path.pop_back();
-
-            // choice 2: remove the parenthese
-            dfs(index + 1, left_remain - 1, right_remain, pair, path, s);
         }
         else if (c == ')') {
-            // choice 1: reserve the parenthese
-            path.push_back(c);
             dfs(index + 1, left_remain, right_remain, pair - 1, path, s);
-            path.pop_back();
-            // choice 2: remove the parenthese
-            dfs(index + 1, left_remain, right_remain - 1, pair, path, s);
         }
         // if c is a letter
         else {
-            path.push_back(c);
             dfs(index + 1, left_remain, right_remain, pair, path, s);
-            path.pop_back();
+        }
+        path.pop_back();
+
+        // choice 2: remove the parenthese or letter
+        if (c == '(') {
+            dfs(index + 1, left_remain - 1, right_remain, pair, path, s);
+        }
+        else if (c == ')') {
+            dfs(index + 1, left_remain, right_remain - 1, pair, path, s);
         }
     }
 
@@ -57,6 +58,7 @@ public:
         valid_string.clear();
         int left_remain = 0, right_remain = 0;
         string path = "";
+        path.reserve(s.size());
         for (char c : s) {
             if (c == '(') {
                 ++left_remain;
