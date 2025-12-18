@@ -1,24 +1,38 @@
 // @leet start
-#include <algorithm>
-#include <vector>
+#include <cmath>
 
 using namespace std;
 
 class Solution {
+private:
+    bool is_square(int n) {
+        int sq = sqrt(n);
+        return n == sq * sq;
+    }
+
 public:
+    // Use Lagrange's four-square theorem
+    // Legendre's three-square theorem
     int numSquares(int n) {
-        static vector<int> dp{0};
-
-        while (dp.size() <= n) {
-            int m = dp.size();
-            int min_val = INT_MAX;
-
-            for (int i = 1; i * i <= m; ++i) {
-                min_val = min(min_val, dp[m - i * i] + 1);
-            }
-            dp.push_back(min_val);
+        if (is_square(n)) {
+            return 1;
         }
-        return dp[n];
+
+        int temp = n;
+        while (temp % 4 == 0) {
+            temp /= 4;
+        }
+        if (temp % 8 == 7) {
+            return 4;
+        }
+
+        for (int i = 1; i * i < n; ++i) {
+            if (is_square(n - i * i)) {
+                return 2;
+            }
+        }
+
+        return 3;
     }
 };
 // @leet end
