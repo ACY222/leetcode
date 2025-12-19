@@ -7,26 +7,26 @@ using namespace std;
 class Solution {
 public:
     vector<int> maxSlidingWindow(vector<int>& nums, int k) {
-        deque<int> window;
+        deque<int> dq;      // store the indices instead of actual value
         vector<int> res;
         res.reserve(nums.size() - k + 1);
-        for (int i = 0; i < k; ++i) {
-            while (!window.empty() and window.back() < nums[i]) {
-                window.pop_back();
-            }
-            window.push_back(nums[i]);
-        }
-        res.push_back(window.front());
 
-        for (int i = 1; i <= nums.size() - k; ++i) {
-            if (window.front() == nums[i - 1]) {
-                window.pop_front();
+        for (int i = 0; i < nums.size(); ++i) {
+            // pop back if the value at the tail is smaller than current value
+            while (!dq.empty() and nums[dq.back()] < nums[i]) {
+                dq.pop_back();
             }
-            while (!window.empty() and window.back() < nums[i + k - 1]) {
-                window.pop_back();
+            dq.push_back(i);
+
+            // pop front if the value at the head is out of the range
+            if (dq.front() == i - k) {
+                dq.pop_front();
             }
-            window.push_back(nums[i + k - 1]);
-            res.push_back(window.front());
+
+            // record the result if the window is constructed
+            if (i >= k - 1) {
+                res.push_back(nums[dq.front()]);
+            }
         }
         return res;
     }
