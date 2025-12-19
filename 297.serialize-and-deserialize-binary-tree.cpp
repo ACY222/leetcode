@@ -8,7 +8,6 @@
  *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
  * };
  */
-#include <sstream>
 #include <string>
 
 using namespace std;
@@ -18,31 +17,46 @@ public:
 
     // Encodes a tree to a single string.
     string serialize(TreeNode* root) {
-        if (!root) {
-            return "# ";
-        }
-        return to_string(root->val) + " " + serialize(root->left) + serialize(root->right);
+        string res;
+        serializeHelper(root, res);
+        return res;
     }
 
     // Decodes your encoded data to tree.
     TreeNode* deserialize(string data) {
-        stringstream ss(data);
-        return buildTree(ss);
+        int pos = 0;
+        return deserializeHelper(data, pos);
     }
 
 private:
-    TreeNode* buildTree(stringstream& ss) {
-        string temp;
-        ss >> temp;
-
-        if (temp == "#") {
+    TreeNode* deserializeHelper(const string& data, int& pos) {
+        if (pos >= data.size()) {
             return nullptr;
         }
 
-        TreeNode* node = new TreeNode(stoi(temp));
-        node->left = buildTree(ss);
-        node->right = buildTree(ss);
+        int commaPos = data.find(',', pos);
+        string valStr = data.substr(pos, commaPos - pos);
+
+        pos = commaPos + 1;
+
+        if (valStr == "#") {
+            return nullptr;
+        }
+
+        TreeNode* node = new TreeNode(stoi(valStr));
+        node->left = deserializeHelper(data, pos);
+        node->right = deserializeHelper(data, pos);
         return node;
+    }
+
+    void serializeHelper(TreeNode* root, string& res) {
+        if (!root) {
+            res += "#,";
+            return;
+        }
+        res += to_string(root->val) + ",";
+        serializeHelper(root->left, res);
+        serializeHelper(root->right, res);
     }
 };
 
