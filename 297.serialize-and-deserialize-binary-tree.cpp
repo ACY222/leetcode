@@ -8,9 +8,7 @@
  *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
  * };
  */
-#include <iostream>
 #include <sstream>
-#include <stack>
 #include <string>
 
 using namespace std;
@@ -20,52 +18,31 @@ public:
 
     // Encodes a tree to a single string.
     string serialize(TreeNode* root) {
-        string res;
-        stack<TreeNode*> st;
-        st.push(root);
-
-        while (!st.empty()) {
-            TreeNode* curr = st.top();
-            st.pop();
-            if (!curr) {
-                res.append("# ");
-            }
-            else {
-                res.append(to_string(curr->val) + " ");
-                st.push(curr->right);
-                st.push(curr->left);
-            }
+        if (!root) {
+            return "# ";
         }
-        return res;
+        return to_string(root->val) + " " + serialize(root->left) + serialize(root->right);
     }
 
     // Decodes your encoded data to tree.
     TreeNode* deserialize(string data) {
-        vector<string> tokens {split(data)};
-        return constructFromPreorder(tokens);
+        stringstream ss(data);
+        return buildTree(ss);
     }
 
 private:
-    int index = 0;
-    TreeNode* constructFromPreorder(vector<string>& preorder) {
-        if (preorder[index] == "#") {
-            ++index;
+    TreeNode* buildTree(stringstream& ss) {
+        string temp;
+        ss >> temp;
+
+        if (temp == "#") {
             return nullptr;
         }
-        TreeNode* root = new TreeNode(stoi(preorder[index++]));
-        root->left = constructFromPreorder(preorder);
-        root->right = constructFromPreorder(preorder);
-        return root;
-    }
-    vector<string> split(string input) {
-        vector<string> tokens;
-        string token;
-        stringstream ss(input);
 
-        while (getline(ss, token, ' ')) {
-            tokens.push_back(token);
-        }
-        return tokens;
+        TreeNode* node = new TreeNode(stoi(temp));
+        node->left = buildTree(ss);
+        node->right = buildTree(ss);
+        return node;
     }
 };
 
