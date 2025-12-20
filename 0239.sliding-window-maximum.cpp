@@ -1,35 +1,34 @@
 // @leet start
-#include <cstdlib>
-#include <deque>
 #include <vector>
-using std::vector;
-using std::deque;
+#include <deque>
+
+using namespace std;
+
 class Solution {
 public:
-  vector<int> maxSlidingWindow(vector<int>& nums, int k) {
-    deque<int> dq {};
-    vector<int> res {};
-    int n {(int)nums.size()};
-    for (int i = 0; i < k; ++i) {
-      int num {nums[i]};
-      while (!dq.empty() && dq.back() < num) {
-        dq.pop_back();
-      }
-      dq.push_back(num);
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        deque<int> dq;      // store the indices instead of actual value
+        vector<int> res;
+        res.reserve(nums.size() - k + 1);
+
+        for (int i = 0; i < nums.size(); ++i) {
+            // pop back if the value at the tail is smaller than current value
+            while (!dq.empty() and nums[dq.back()] < nums[i]) {
+                dq.pop_back();
+            }
+            dq.push_back(i);
+
+            // pop front if the value at the head is out of the range
+            if (dq.front() == i - k) {
+                dq.pop_front();
+            }
+
+            // record the result if the window is constructed
+            if (i >= k - 1) {
+                res.push_back(nums[dq.front()]);
+            }
+        }
+        return res;
     }
-    res.push_back(dq.front());
-    for (int i = k; i < n; ++i) {
-      int num {nums[i]};
-      if (dq.front() == nums[i - k]) {
-        dq.pop_front();
-      }
-      while (!dq.empty() && dq.back() < num) {
-        dq.pop_back();
-      }
-      dq.push_back(num);
-      res.push_back(dq.front());
-    }
-    return res;
-  }
 };
 // @leet end

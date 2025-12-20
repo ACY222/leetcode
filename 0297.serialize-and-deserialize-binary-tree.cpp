@@ -9,59 +9,55 @@
  * };
  */
 #include <string>
-#include <stack>
-#include <vector>
-#include <sstream>
-#include <iostream>
-using std::string, std::to_string, std::stoi;
-using std::stack, std::vector, std::getline, std::stringstream;
-using std::cout, std::endl;
+
+using namespace std;
+
 class Codec {
 public:
-  int index {0};
-  // Encodes a tree to a single string.
-  string serialize(TreeNode* root) {
-    string res {};
-    stack<TreeNode*> st {};
-    st.push(root);
-    while (!st.empty()) {
-      TreeNode* top {st.top()};
-      st.pop();
-      if (!top) { // if top is nullptr
-        res.append("# ");
-        continue;
-      }
-      res.append(to_string(top->val) + ' ');
-      st.push(top->right);
-      st.push(top->left);
+
+    // Encodes a tree to a single string.
+    string serialize(TreeNode* root) {
+        string res;
+        serializeHelper(root, res);
+        return res;
     }
-    return res;
-  }
-  // Decodes your encoded data to tree.
-  TreeNode* deserialize(string data) {
-    vector<string> preorder {split(data)};
-    return constructFromPreorder(preorder);
-  }
+
+    // Decodes your encoded data to tree.
+    TreeNode* deserialize(string data) {
+        int pos = 0;
+        return deserializeHelper(data, pos);
+    }
+
 private:
-  TreeNode* constructFromPreorder(vector<string>& preorder) {
-    if (preorder[index] == "#") {
-      ++index;
-      return nullptr;
+    TreeNode* deserializeHelper(const string& data, int& pos) {
+        if (pos >= data.size()) {
+            return nullptr;
+        }
+
+        int commaPos = data.find(',', pos);
+        string valStr = data.substr(pos, commaPos - pos);
+
+        pos = commaPos + 1;
+
+        if (valStr == "#") {
+            return nullptr;
+        }
+
+        TreeNode* node = new TreeNode(stoi(valStr));
+        node->left = deserializeHelper(data, pos);
+        node->right = deserializeHelper(data, pos);
+        return node;
     }
-    TreeNode* root = new TreeNode(stoi(preorder[index++]));
-    root->left = constructFromPreorder(preorder);
-    root->right = constructFromPreorder(preorder);
-    return root;
-  }
-  vector<string> split(string s) {
-    vector<string> tokens;
-    string token;
-    stringstream ss(s);
-    while (getline(ss, token, ' ')) {
-      tokens.push_back(token);
+
+    void serializeHelper(TreeNode* root, string& res) {
+        if (!root) {
+            res += "#,";
+            return;
+        }
+        res += to_string(root->val) + ",";
+        serializeHelper(root->left, res);
+        serializeHelper(root->right, res);
     }
-    return tokens;
-  }
 };
 
 // Your Codec object will be instantiated and called as such:

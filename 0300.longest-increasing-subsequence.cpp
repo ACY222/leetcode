@@ -1,40 +1,27 @@
 // @leet start
 #include <vector>
+#include <algorithm>
+
 using namespace std;
+
 class Solution {
 private:
-    vector<int> poker_piles;
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        vector<int> tails;
 
-    void binary_search(int poker) {
-        // [left, right], where right side is included
-        int left = 0, right = poker_piles.size();
-        while (left < right) {
-            int mid = left + (right - left) / 2;
-            if (poker_piles[mid] < poker) {
-                left = mid + 1;
+        for (int num : nums) {
+            auto it = lower_bound(tails.begin(), tails.end(), num);
+
+            // if num >= all elements in tails
+            if (it == tails.end()) {
+                tails.push_back(num);
             }
             else {
-                right = mid;
+                *it = num;
             }
         }
-
-        if (left == poker_piles.size()) {
-            poker_piles.push_back(poker);
-        }
-        else {
-            poker_piles[left] = poker;
-        }
-    }
-
-public:
-    // O(nlog(n)) time complexity
-    int lengthOfLIS(vector<int>& nums) {
-        int num_piles = 0;
-        for (int i = 0; i < nums.size(); ++i) {
-            int poker = nums[i];
-            binary_search(poker);
-        }
-        return poker_piles.size();
+        return tails.size();
     }
 };
 // @leet end
