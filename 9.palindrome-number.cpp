@@ -1,29 +1,22 @@
 // @leet start
-#include <string>
-using std::string;
-// #include <stack>
-//
-// using std::stack;
+#include <climits>
 class Solution {
 public:
     bool isPalindrome(int x) {
         if (x < 0) { return false; }
-        string x_str = std::to_string(x);
-        for (auto i{0}; i < x_str.size() / 2; ++i) {
-            if (x_str[i] != x_str[x_str.size() - i - 1]) { return false; }
+        auto x_rev{0};
+        auto x_copy{x};
+
+        while (x_copy != 0) {
+            auto last{x_copy % 10};
+            if (x_rev > INT_MAX / 10 or (x_rev == INT_MAX / 10 and last > 7)) {
+                return false;
+            }
+            x_rev = x_rev * 10 + last;
+            x_copy /= 10;
         }
-        return true;
-        // // negative number won't be palindrome due to '-' symbol
-        // if (x < 0) {
-        //     return false;
-        // }
-        //
-        // stack<int> st;
-        //
-        // while (x != 0) {
-        //     st.push(x % 10);
-        //     x /= 10;
-        // }
+
+        return x == x_rev ? true : false;
     }
 };
 // @leet end
