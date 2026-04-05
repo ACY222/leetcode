@@ -7,16 +7,18 @@ class Solution {
 public:
     int maxArea(vector<int>& height) {
         auto max_area{0};
-        auto i{0};
-        auto j{height.size() - 1};
+        int i{0}, j{static_cast<int>(height.size() - 1)};
 
         while (i < j) {
-            if (height[i] <= height[j]) {
-                max_area = max<int>(max_area, height[i] * (j - i));
-                ++i;
+            int height_i = height[i];
+            int height_j = height[j];
+
+            if (height_i <= height_j) {
+                max_area = max(max_area, height_i * (j - i));
+                while (i < j and height_i >= height[++i]) {}
             } else {
-                max_area = max<int>(max_area, height[j] * (j - i));
-                --j;
+                max_area = max(max_area, height_j * (j - i));
+                while (i < j and height_j >= height[--j]) {}
             }
         }
 
