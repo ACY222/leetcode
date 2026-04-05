@@ -1,22 +1,17 @@
 // @leet start
 #include <cctype>
-#include <climits>
 #include <string>
 
-using namespace std;
-
+using std::string;
 class Solution {
 public:
     int myAtoi(string s) {
-        int sign = 1;
-
-        // trim the leading space
-        auto idx_non_space = s.find_first_not_of(' ');
-        if (idx_non_space == string::npos) { return 0; }
-        int base_index = idx_non_space;
-
+        // trim the leading whitespace
+        auto is_neg{1};
+        auto base_index{s.find_first_not_of(' ')};
+        if (base_index == string::npos) { return 0; }
         if (s[base_index] == '-') {
-            sign = -1;
+            is_neg = -1;
             ++base_index;
         } else if (s[base_index] == '+') {
             ++base_index;
@@ -24,16 +19,16 @@ public:
             return 0;
         }
 
-        int res = 0;
-        for (int i = base_index; i < s.size() and isdigit(s[i]); ++i) {
-            int last = sign * (s[i] - '0');
-
-            // judge if next result will be out of range
-            if (res > INT_MAX / 10 or (res == INT_MAX / 10 and last > 7)) {
-                return INT_MAX;
-            }
-            if (res < INT_MIN / 10 or (res == INT_MIN / 10 and last < -8)) {
+        auto res{0};
+        for (auto i{base_index}; i < s.size() and isdigit(s[i]); ++i) {
+            auto last{is_neg * (s[i] - '0')};
+            if (is_neg
+                and (res < INT_MIN / 10
+                     or (res == INT_MIN / 10 and last < -8))) {
                 return INT_MIN;
+            } else if (res > INT_MAX / 10
+                       or (res == INT_MAX / 10 and last > 7)) {
+                return INT_MAX;
             }
 
             res = res * 10 + last;
