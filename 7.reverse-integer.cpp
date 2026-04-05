@@ -6,9 +6,7 @@ public:
         int res{0};
 
         while (x != 0) {
-            int last = x % 10;
-            x /= 10;
-
+            int last{x % 10};
             if (res > INT_MAX / 10 or (res == INT_MAX / 10 and last > 7)) {
                 return 0;
             }
@@ -16,6 +14,8 @@ public:
             if (res < INT_MIN / 10 or (res == INT_MIN / 10 and last < -8)) {
                 return 0;
             }
+
+            x /= 10;
             res = res * 10 + last;
         }
 
