@@ -1,7 +1,7 @@
 // @leet start
 #include <string>
-#include <unordered_map>
 #include <utility>
+#include <vector>
 using namespace std;
 class Solution {
 public:
@@ -9,37 +9,19 @@ public:
     // 1  5 10 50 100 500 1000
     string intToRoman(int num) {
         string roman;
-        auto curr_index{0};
-        unordered_map<int, char> coins{{{1000, 'M'},
-                                        {500, 'D'},
-                                        {100, 'C'},
-                                        {50, 'L'},
-                                        {10, 'X'},
-                                        {5, 'V'},
-                                        {1, 'I'}}};
 
-        auto curr_value{1};
-        while (num > 0) {
-            auto last{num % 10};
-            string combined;
+        vector<pair<int, string>> valueSymbols{
+            {1000, "M"}, {900, "CM"}, {500, "D"}, {400, "CD"}, {100, "C"},
+            {90, "XC"},  {50, "L"},   {40, "XL"}, {10, "X"},   {9, "IX"},
+            {5, "V"},    {4, "IV"},   {1, "I"}};
 
-            if (last == 4) {
-                roman += coins[curr_value * 5];
-                roman += coins[curr_value];
-            } else if (last == 9) {
-                roman += coins[curr_value * 10];
-                roman += coins[curr_value];
-            } else {
-                roman.append(last % 5, coins[curr_value]);
-                if (last >= 5) { roman += coins[curr_value * 5]; }
+        for (const auto& [value, symbol] : valueSymbols) {
+            while (num >= value) {
+                roman += symbol;
+                num -= value;
             }
 
-            num /= 10;
-            curr_value *= 10;
-        }
-
-        for (auto i{0}; i < roman.size() / 2; ++i) {
-            swap(roman[i], roman[roman.size() - 1 - i]);
+            if (num == 0) { break; }
         }
 
         return roman;
