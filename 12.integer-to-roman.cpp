@@ -1,6 +1,7 @@
 // @leet start
 #include <string>
 #include <unordered_map>
+#include <utility>
 using namespace std;
 class Solution {
 public:
@@ -23,22 +24,22 @@ public:
             string combined;
 
             if (last == 4) {
-                combined += coins[curr_value];
-                combined += coins[curr_value * 5];
+                roman += coins[curr_value * 5];
+                roman += coins[curr_value];
             } else if (last == 9) {
-                combined += coins[curr_value];
-                combined += coins[curr_value * 10];
+                roman += coins[curr_value * 10];
+                roman += coins[curr_value];
             } else {
-                if (last >= 5) {
-                    combined += coins[curr_value * 5];
-                    last %= 5;
-                }
-                combined.append(last, coins[curr_value]);
+                roman.append(last % 5, coins[curr_value]);
+                if (last >= 5) { roman += coins[curr_value * 5]; }
             }
 
-            roman.insert(0, combined);
             num /= 10;
             curr_value *= 10;
+        }
+
+        for (auto i{0}; i < roman.size() / 2; ++i) {
+            swap(roman[i], roman[roman.size() - 1 - i]);
         }
 
         return roman;
