@@ -6,37 +6,45 @@
 using std::vector;
 
 class Solution {
-private:
-    int left;
-    int right;
-    int64_t orig_sum;
-
 public:
     vector<vector<int>> fourSum(vector<int>& nums, int target) {
-        if (nums.size() < 4) { return {}; }
+        int n {static_cast<int>(nums.size())};
+
+        if (n < 4) { return {}; }
         vector<vector<int>> results;
         std::sort(nums.begin(), nums.end());
 
-        for (auto i {0}; i < nums.size() - 3; ++i) {
-            for (auto j {i + 1}; j < nums.size() - 2; ++j) {
-                orig_sum = nums[i] + nums[j];
-                left = j + 1;
-                right = static_cast<int>(nums.size() - 1);
+        for (int i {0}; i < n - 3; ++i) {
+            if (i > 0 and nums[i] == nums[i - 1]) { continue; }
+
+            if ((int64_t)nums[i] + nums[i + 1] + nums[i + 2] + nums[i + 3]
+                > target)
+                break;
+            if ((int64_t)nums[i] + nums[n - 1] + nums[n - 2] + nums[n - 3]
+                < target)
+                continue;
+
+            for (int j {i + 1}; j < n - 2; ++j) {
+                if (j > i + 1 and nums[j] == nums[j - 1]) { continue; }
+
+                if ((int64_t)nums[i] + nums[j] + nums[j + 1] + nums[j + 2]
+                    > target)
+                    break;
+                if ((int64_t)nums[i] + nums[j] + nums[n - 1] + nums[n - 2]
+                    < target)
+                    continue;
+
+                auto orig_sum {static_cast<int64_t>(nums[i] + nums[j])};
+                auto left {j + 1};
+                auto right {static_cast<int>(n - 1)};
 
                 while (left < right) {
                     int64_t curr_sum = nums[left] + nums[right];
                     curr_sum += orig_sum;
 
                     if (curr_sum < target) {
-                        while (left < right and nums[left] == nums[left + 1]) {
-                            ++left;
-                        }
                         ++left;
                     } else if (curr_sum > target) {
-                        while (left < right
-                               and nums[right] == nums[right - 1]) {
-                            --right;
-                        }
                         --right;
                     } else {
                         results.push_back({nums[i], nums[j], nums[left],
@@ -53,13 +61,6 @@ public:
                         --right;
                     }
                 }
-
-                while (j < nums.size() - 2 and nums[j] == nums[j + 1]) {
-                    ++j;
-                }
-            }
-            while (i < nums.size() - 3 and nums[i] == nums[i + 1]) {
-                ++i;
             }
         }
 
