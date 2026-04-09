@@ -1,34 +1,41 @@
 // @leet start
 #include <algorithm>
-#include <stack>
 #include <string>
 using namespace std;
 class Solution {
 public:
     int longestValidParentheses(string s) {
-        stack<int> indices;
+        auto num_longest_valid {0};
+        auto num_left {0}, num_right {0};
 
         for (int i = 0; i < s.size(); ++i) {
-            // if current ')' matches '('
-            if (s[i] == ')' and !indices.empty() and s[indices.top()] == '(') {
-                indices.pop();
+            if (s[i] == '(') {
+                ++num_left;
             } else {
-                indices.push(i);
+                ++num_right;
+                if (num_right == num_left) {
+                    num_longest_valid = max(num_longest_valid, 2 * num_right);
+                } else if (num_right > num_left) {
+                    num_left = 0, num_right = 0;
+                }
             }
         }
 
-        int longest_valid = 0;
-        auto curr {static_cast<int>(s.size())};
-
-        while (!indices.empty()) {
-            auto next {indices.top()};
-            indices.pop();
-            longest_valid = max(longest_valid, curr - next - 1);
-            curr = next;
+        num_left = 0, num_right = 0;
+        for (int i = s.size() - 1; i >= 0; --i) {
+            if (s[i] == ')') {
+                ++num_right;
+            } else {
+                ++num_left;
+                if (num_left == num_right) {
+                    num_longest_valid = max(num_longest_valid, 2 * num_left);
+                } else if (num_left > num_right) {
+                    num_left = 0, num_right = 0;
+                }
+            }
         }
 
-        longest_valid = max(longest_valid, curr);
-        return longest_valid;
+        return num_longest_valid;
     }
 };
 // @leet end
