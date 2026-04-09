@@ -2,44 +2,32 @@
 #include <algorithm>
 #include <stack>
 #include <string>
-#include <vector>
 using namespace std;
 class Solution {
 public:
     int longestValidParentheses(string s) {
-        vector<bool> is_valid(s.size(), false);
-        stack<pair<char, int>> st;
+        stack<int> indices;
 
         for (int i = 0; i < s.size(); ++i) {
-            char val = s[i];
-
-            // if current ')' matches '(' in the stack
-            if (val == ')') {
-                if (!st.empty() and st.top().first == '(') {
-                    is_valid[i] = true;
-                    is_valid[st.top().second] = true;
-                    st.pop();
-                }
-                // else {
-                //     st.emplace(val, i);
-                // }
+            // if current ')' matches '('
+            if (s[i] == ')' and !indices.empty() and s[indices.top()] == '(') {
+                indices.pop();
             } else {
-                st.emplace(val, i);
+                indices.push(i);
             }
         }
 
         int longest_valid = 0;
-        for (int i = 0; i < s.size(); ++i) {
-            // skip if invalid
-            if (!is_valid[i]) { continue; }
+        auto curr {static_cast<int>(s.size())};
 
-            int curr_valid = 0;
-            while (i < s.size() and is_valid[i]) {
-                ++curr_valid;
-                ++i;
-            }
-            longest_valid = max(curr_valid, longest_valid);
+        while (!indices.empty()) {
+            auto next {indices.top()};
+            indices.pop();
+            longest_valid = max(longest_valid, curr - next - 1);
+            curr = next;
         }
+
+        longest_valid = max(longest_valid, curr);
         return longest_valid;
     }
 };
