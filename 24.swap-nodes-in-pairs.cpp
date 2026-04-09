@@ -12,24 +12,28 @@
 class Solution {
 public:
     ListNode *swapPairs(ListNode *head) {
+        if (!head or !head->next) {
+            return head;
+        }
+
         auto curr {head};
-        auto prev {head};
+        auto next {head->next};
+        head = next;
 
         // if we have two nodes to swap
-        while (curr != nullptr and curr->next != nullptr) {
-            auto next {curr->next};
+        while (curr and curr->next) {
+            if (next != curr->next) {
+                next->next = curr->next;
+            }
+
+            next = curr->next;
 
             // swap curr and next
             curr->next = next->next;
             next->next = curr;
 
-            if (prev == head) {
-                head = next;
-            } else {
-                prev->next = next;
-            }
-            prev = curr;
             // step forward
+            next = curr;
             curr = curr->next;
         }
 
