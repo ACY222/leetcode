@@ -34,7 +34,7 @@ public:
             if (!is_valid[i]) { continue; }
 
             int curr_valid = 0;
-            while (is_valid[i]) {
+            while (i < s.size() and is_valid[i]) {
                 ++curr_valid;
                 ++i;
             }
