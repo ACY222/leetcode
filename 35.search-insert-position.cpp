@@ -1,5 +1,4 @@
 // @leet start
-#include <algorithm>
 #include <vector>
 using namespace std;
 
@@ -7,21 +6,22 @@ class Solution {
 public:
     // sorted array of distinct ints
     int searchInsert(vector<int>& nums, int target) {
-        auto it = std::lower_bound(nums.begin(), nums.end(), target);
-        return (it - nums.begin());
-        // int size = nums.size();
-        // int idx = size / 2;
-        // while (nums[idx] != target) {
-        //     if (nums[idx] < target) {
-        //         if (idx == size - 1) { return size; }
-        //         idx = (idx + size) / 2;
-        //     } else {
-        //         if (idx == 0) { return 0; }
-        //         idx = idx / 2;
-        //     }
-        // }
-        //
-        // return idx;
+        int size = nums.size();
+        int left {0}, right {size - 1};
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (nums[mid] == target) {
+                return mid;
+            } else if (nums[mid] < target) {
+                left = mid + 1;
+            } else {
+                // left == mid == right, nums[mid] > target
+                if (right == mid) { return mid; }
+                right = mid;
+            }
+        }
+
+        return left;
     }
 };
 // @leet end
