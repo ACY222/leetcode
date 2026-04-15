@@ -1,38 +1,37 @@
 // @leet start
 #include <string>
+#include <vector>
 using namespace std;
 class Solution {
 public:
-    // `?`: 1 char
-    // `*`: 0-infinity chars
     bool isMatch(string s, string p) {
-        int i = 0, j = 0;
-        int match_idx = -1, star_idx = -1;
+        int s_size = s.size(), p_size = p.size();
+        vector<vector<bool>> dp(s_size + 1, vector<bool>(p_size + 1, false));
+        dp[0][0] = true;
 
-        while (i < s.size()) {
-            // if p[j] and s[i] matches
-            if (j < p.size() and (p[j] == '?' or p[j] == s[i])) {
-                i++;
-                j++;
-            } else if (j < p.size() and p[j] == '*') {
-                // suppose * matches 0 char
-                star_idx = j;
-                match_idx = i;
-                j++;
-            } else if (star_idx != -1) {
-                j = star_idx + 1;
-                match_idx++;
-                i = match_idx;
+        // if p starts with '*'
+        for (int j = 1; j <= p_size; ++j) {
+            if (p[j - 1] == '*') {
+                dp[0][j] = true;
             } else {
-                return false;
+                break;
             }
         }
 
-        while (j < p.size() and p[j] == '*') {
-            ++j;
+        for (int i = 1; i <= s_size; ++i) {
+            for (int j = 1; j <= p_size; ++j) {
+                if (p[j - 1] == '*') {
+                    // matches 0, 1, or more char
+                    dp[i][j] = dp[i][j - 1] or dp[i - 1][j - 1] or dp[i - 1][j];
+                } else {
+                    if (s[i - 1] == p[j - 1] or p[j - 1] == '?') {
+                        dp[i][j] = dp[i - 1][j - 1];
+                    }
+                }
+            }
         }
 
-        return j == p.size();
+        return dp[s_size][p_size];
     }
 };
 // @leet end
