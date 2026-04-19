@@ -7,18 +7,15 @@ public:
     // return 0 if no valid pairs
     // truly valid: i < j and nums1[i] <= nums2[j]
     int maxDistance(vector<int>& nums1, vector<int>& nums2) {
-        int max_dist = 0;
         int n1 = nums1.size(), n2 = nums2.size();
+        int i = 0, j = 1;
 
-        for (int i = 0; i < n1 and i + 1 + max_dist < n2; ++i) {
-            int j = i + 1 + max_dist;
-            while (j < n2 and nums1[i] <= nums2[j]) {
-                ++max_dist;
-                ++j;
-            }
+        while (i < n1 and j < n2) {
+            if (nums1[i] > nums2[j]) { ++i; }
+            ++j;
         }
 
-        return max_dist;
+        return j - i - 1;
     }
 };
 // @leet end
