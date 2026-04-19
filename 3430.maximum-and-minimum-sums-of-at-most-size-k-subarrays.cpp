@@ -1,55 +1,98 @@
 // @leet start
-#include <deque>
 #include <vector>
 using namespace std;
 class Solution {
+private:
+    long long count_pairs(long long L, long long R, long long k) {
+        auto M = k + 1;
+        return T(M - 1) - T(M - 1 - L) - T(M - 1 - R) + T(M - 1 - L - R);
+    }
+
+    long long T(long long x) {
+        if (x <= 0) { return 0; }
+        return (1 + x) * x / 2;
+    }
+
+    void devote_as_max(const vector<int>& nums, int k, long long& total_sum) {
+        int n = nums.size();
+        vector<int> st;
+        vector<int> left_max(n, -1), right_max(n, n);
+
+        // find the strictly larger element in the left
+        for (int i = 0; i < n; ++i) {
+            // pop if prev <= curr
+            while (!st.empty() and nums[st.back()] <= nums[i]) {
+                st.pop_back();
+            }
+
+            if (!st.empty()) { left_max[i] = st.back(); }
+
+            st.push_back(i);
+        }
+
+        st.clear();
+        // find the larger element in the right
+        for (int i = n - 1; i >= 0; --i) {
+            // pop if prev < curr
+            while (!st.empty() and nums[st.back()] < nums[i]) {
+                st.pop_back();
+            }
+
+            if (!st.empty()) { right_max[i] = st.back(); }
+            st.push_back(i);
+        }
+
+        for (int i = 0; i < n; ++i) {
+            long long L = i - left_max[i];
+            long long R = right_max[i] - i;
+            total_sum += (long long)nums[i] * count_pairs(L, R, k);
+        }
+    }
+
+    void devote_as_min(const vector<int>& nums, int k, long long& total_sum) {
+        int n = nums.size();
+        vector<int> st;
+        vector<int> left_min(n, -1), right_min(n, n);
+
+        // find the strictly smaller element in the left
+        for (int i = 0; i < n; ++i) {
+            // pop if prev >= curr
+            while (!st.empty() and nums[st.back()] >= nums[i]) {
+                st.pop_back();
+            }
+
+            if (!st.empty()) { left_min[i] = st.back(); }
+
+            st.push_back(i);
+        }
+
+        st.clear();
+        // find the smaller element in the right
+        for (int i = n - 1; i >= 0; --i) {
+            // pop if prev > curr
+            while (!st.empty() and nums[st.back()] > nums[i]) {
+                st.pop_back();
+            }
+
+            if (!st.empty()) { right_min[i] = st.back(); }
+            st.push_back(i);
+        }
+
+        for (int i = 0; i < n; ++i) {
+            long long L = i - left_min[i];
+            long long R = right_min[i] - i;
+            total_sum += (long long)nums[i] * count_pairs(L, R, k);
+        }
+    }
+
 public:
     long long minMaxSubarraySum(vector<int>& nums, int k) {
-        int size = nums.size();
+        int n = nums.size();
+        long long total_sum = 0;
+        devote_as_max(nums, k, total_sum);
+        devote_as_min(nums, k, total_sum);
 
-        long long result = 0;
-        deque<int> min_indices, max_indices;
-
-        vector<int> counts(size, 2);
-        for (int sub_size = 2; sub_size <= k; ++sub_size) {
-            for (int idx = 0; idx < size; ++idx) {
-                int curr_val = nums[idx];
-
-                if (!min_indices.empty()
-                    and min_indices.front() == idx - sub_size) {
-                    min_indices.pop_front();
-                }
-                while (!min_indices.empty()
-                       and curr_val < nums[min_indices.back()]) {
-                    min_indices.pop_back();
-                }
-                min_indices.push_back(idx);
-
-                if (!max_indices.empty()
-                    and max_indices.front() == idx - sub_size) {
-                    max_indices.pop_front();
-                }
-
-                while (!max_indices.empty()
-                       and curr_val > nums[max_indices.back()]) {
-                    max_indices.pop_back();
-                }
-                max_indices.push_back(idx);
-
-                if (idx >= sub_size - 1) {
-                    counts[max_indices.front()]++;
-                    counts[min_indices.front()]++;
-                }
-            }
-            min_indices.clear();
-            max_indices.clear();
-        }
-
-        for (int i = 0; i < size; ++i) {
-            result += static_cast<long long>(nums[i]) * counts[i];
-        }
-
-        return result;
+        return total_sum;
     }
 };
 // @leet end
