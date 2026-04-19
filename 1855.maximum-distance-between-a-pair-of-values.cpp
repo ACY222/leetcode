@@ -10,13 +10,12 @@ public:
         int max_dist = 0;
         int n1 = nums1.size(), n2 = nums2.size();
 
-        for (int i = 0; i < n1; ++i) {
-            int j = i + max_dist + 1;
+        for (int i = 0; i < n1 and i + 1 + max_dist < n2; ++i) {
+            int j = i + 1 + max_dist;
             while (j < n2 and nums1[i] <= nums2[j]) {
                 ++max_dist;
                 ++j;
             }
-            if (j >= n2) { break; }
         }
 
         return max_dist;
