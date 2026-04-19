@@ -1,4 +1,5 @@
 // @leet start
+#include <stack>
 #include <vector>
 using namespace std;
 class Solution {
@@ -13,84 +14,37 @@ private:
         return (1 + x) * x / 2;
     }
 
-    void devote_as_max(const vector<int>& nums, int k, long long& total_sum) {
-        int n = nums.size();
-        vector<int> st;
-        vector<int> left_max(n, -1), right_max(n, n);
-
-        // find the strictly larger element in the left
-        for (int i = 0; i < n; ++i) {
-            // pop if prev <= curr
-            while (!st.empty() and nums[st.back()] <= nums[i]) {
-                st.pop_back();
-            }
-
-            if (!st.empty()) { left_max[i] = st.back(); }
-
-            st.push_back(i);
-        }
-
-        st.clear();
-        // find the larger element in the right
-        for (int i = n - 1; i >= 0; --i) {
-            // pop if prev < curr
-            while (!st.empty() and nums[st.back()] < nums[i]) {
-                st.pop_back();
-            }
-
-            if (!st.empty()) { right_max[i] = st.back(); }
-            st.push_back(i);
-        }
-
-        for (int i = 0; i < n; ++i) {
-            long long L = i - left_max[i];
-            long long R = right_max[i] - i;
-            total_sum += (long long)nums[i] * count_pairs(L, R, k);
-        }
-    }
-
-    void devote_as_min(const vector<int>& nums, int k, long long& total_sum) {
-        int n = nums.size();
-        vector<int> st;
-        vector<int> left_min(n, -1), right_min(n, n);
-
-        // find the strictly smaller element in the left
-        for (int i = 0; i < n; ++i) {
-            // pop if prev >= curr
-            while (!st.empty() and nums[st.back()] >= nums[i]) {
-                st.pop_back();
-            }
-
-            if (!st.empty()) { left_min[i] = st.back(); }
-
-            st.push_back(i);
-        }
-
-        st.clear();
-        // find the smaller element in the right
-        for (int i = n - 1; i >= 0; --i) {
-            // pop if prev > curr
-            while (!st.empty() and nums[st.back()] > nums[i]) {
-                st.pop_back();
-            }
-
-            if (!st.empty()) { right_min[i] = st.back(); }
-            st.push_back(i);
-        }
-
-        for (int i = 0; i < n; ++i) {
-            long long L = i - left_min[i];
-            long long R = right_min[i] - i;
-            total_sum += (long long)nums[i] * count_pairs(L, R, k);
-        }
-    }
-
 public:
     long long minMaxSubarraySum(vector<int>& nums, int k) {
-        int n = nums.size();
         long long total_sum = 0;
-        devote_as_max(nums, k, total_sum);
-        devote_as_min(nums, k, total_sum);
+        int n = nums.size();
+        stack<int> st_max, st_min;
+
+        // find the strictly larger element in the left
+        for (int i = 0; i <= n; ++i) {
+            // if prev <= curr, then right_max[prev] should be curr
+            while (!st_max.empty()
+                   and (i == n or nums[st_max.top()] <= nums[i])) {
+                int curr = st_max.top();
+                st_max.pop();
+                long long L = curr - (st_max.empty() ? -1 : st_max.top());
+                long long R = i - curr;
+                total_sum += (long long)nums[curr] * count_pairs(L, R, k);
+            }
+
+            if (i < n) st_max.push(i);
+
+            while (!st_min.empty()
+                   and (i == n or nums[st_min.top()] >= nums[i])) {
+                int curr = st_min.top();
+                st_min.pop();
+                long long L = curr - (st_min.empty() ? -1 : st_min.top());
+                long long R = i - curr;
+                total_sum += (long long)nums[curr] * count_pairs(L, R, k);
+            }
+
+            if (i < n) st_min.push(i);
+        }
 
         return total_sum;
     }
