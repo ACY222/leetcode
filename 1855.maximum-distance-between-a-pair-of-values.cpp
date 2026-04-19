@@ -16,6 +16,7 @@ public:
                 ++max_dist;
                 ++j;
             }
+            if (j >= n2) { break; }
         }
 
         return max_dist;
