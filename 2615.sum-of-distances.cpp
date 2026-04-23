@@ -3,56 +3,31 @@
 #include <vector>
 using namespace std;
 class Solution {
-    struct indices_presum {
-        long long index;
-        long long presum;
-
-        indices_presum(int index, int presum) : index(index), presum(presum) {}
-        indices_presum(int index, long long presum)
-            : index(index), presum(presum) {}
-    };
-
 public:
     vector<long long> distance(vector<int>& nums) {
-        int n = nums.size();
-        vector<long long> dist(n, 0);
-        unordered_map<int, vector<indices_presum>> val_to_indices_and_presum;
+        int size = nums.size();
+        unordered_map<int, vector<int>> groups;
+        vector<long long> dist(size);
 
-        for (int i = 0; i < n; ++i) {
-            int num = nums[i];
-
-            long long last_presum = 0;
-            if (val_to_indices_and_presum.find(num)
-                != val_to_indices_and_presum.end()) {
-                last_presum = val_to_indices_and_presum[num].back().presum;
-            }
-            val_to_indices_and_presum[num].emplace_back(i, i + last_presum);
+        for (int i = 0; i < size; ++i) {
+            groups[nums[i]].push_back(i);
         }
 
-        for (auto& [_val, indices_and_presum] : val_to_indices_and_presum) {
-            long long size = indices_and_presum.size();
+        for (auto& [_val, indices] : groups) {
+            int n = indices.size();
+            long long curr_sum = 0;
 
-            // if the value is unique, leave it 0
-            if (size == 1) { continue; }
+            for (int i = 1; i < n; ++i) {
+                curr_sum += indices[i] - indices[0];
+            }
 
-            for (long long i = 0; i < size; ++i) {
-                // pre_sum_dist = (i - 0) * i - presum[i - 1]
-                // post_sum_dist = (presum[size - 1] - presum[i + 1]) - (size -
-                // 1 - (i + 1)) * i
-                long long index = indices_and_presum[i].index;
-                long long pre_sum_dist = 0, post_sum_dist = 0;
-                if (i > 0) {
-                    pre_sum_dist = i * index - indices_and_presum[i - 1].presum;
-                }
+            dist[indices[0]] = curr_sum;
 
-                if (i < size - 1) {
-                    post_sum_dist = (indices_and_presum[size - 1].presum
-                                     - indices_and_presum[i].presum)
-                                    - (size - 1 - i) * index;
-                }
+            for (int i = 1; i < n; ++i) {
+                long long delta = indices[i] - indices[i - 1];
 
-                dist[indices_and_presum[i].index] =
-                    pre_sum_dist + post_sum_dist;
+                curr_sum += (2 * i - n) * delta;
+                dist[indices[i]] = curr_sum;
             }
         }
 
