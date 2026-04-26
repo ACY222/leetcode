@@ -1,28 +1,29 @@
 // @leet start
 #include <algorithm>
+#include <numeric>
 #include <string>
 #include <vector>
 
-using namespace std;
+using std::vector, std::string;
+
 class Solution {
 public:
     vector<string> sortPeople(vector<string>& names, vector<int>& heights) {
         int n = names.size();
 
-        for (int start = 0; start < n - 1; ++start) {
-            int max_height = 0, max_idx = -1;
-            for (int curr = start; curr < n; ++curr) {
-                if (heights[curr] > max_height) {
-                    max_height = heights[curr];
-                    max_idx = curr;
-                }
-            }
+        vector<int> indices(n);
+        std::iota(indices.begin(), indices.end(), 0);
 
-            swap(names[start], names[max_idx]);
-            swap(heights[start], heights[max_idx]);
+        std::sort(indices.begin(), indices.end(),
+                  [&heights](int i, int j) { return heights[i] > heights[j]; });
+
+        vector<string> res;
+        res.reserve(n);
+        for (int i = 0; i < n; ++i) {
+            res.push_back(names[indices[i]]);
         }
 
-        return names;
+        return res;
     }
 };
 // @leet end
