@@ -1,5 +1,6 @@
 // @leet start
 #include <array>
+#include <numeric>
 #include <utility>
 #include <vector>
 using namespace std;
@@ -15,45 +16,62 @@ private:
         {{0, 1}, {-1, 0}},
     }};
 
-    bool canReturn(const vector<vector<int>>& grid, int cx, int cy, int nx,
-                   int ny) {
-        for (const auto dir : street_to_dirs[grid[nx][ny]]) {
-            auto [dx, dy] = dir;
-            int px = nx + dx, py = ny + dy;
-            if (px == cx and py == cy) { return true; }
+    struct UnionFind {
+        vector<int> parent;
+
+        UnionFind(int n) {
+            parent.resize(n);
+            iota(parent.begin(), parent.end(), 0);
+        }
+        int find(int x) {
+            if (x == parent[x]) { return x; }
+            return (parent[x] = find(parent[x]));
         }
 
-        return false;
-    }
-
-    bool canReach(vector<vector<bool>>& visited,
-                  const vector<vector<int>>& grid, int cx, int cy) {
-        visited[cx][cy] = true;
-        if (cx == grid.size() - 1 and cy == grid[0].size() - 1) { return true; }
-
-        for (const auto dir : street_to_dirs[grid[cx][cy]]) {
-            auto [dx, dy] = dir;
-
-            int nx = cx + dx, ny = cy + dy;
-
-            if (nx < 0 or nx >= grid.size() or ny < 0 or ny >= grid[0].size()) {
-                continue;
-            }
-            if (visited[nx][ny]) { continue; }
-
-            if (!canReturn(grid, cx, cy, nx, ny)) { continue; }
-
-            if (canReach(visited, grid, nx, ny)) { return true; }
+        void unite(int x, int y) {
+            int root_x = find(x);
+            int root_y = find(y);
+            if (root_x != root_y) { parent[root_x] = root_y; }
         }
 
-        return false;
-    }
+        bool is_connected(int x, int y) { return find(x) == find(y); }
+    };
 
 public:
     bool hasValidPath(vector<vector<int>>& grid) {
-        vector<vector<bool>> visited(grid.size(),
-                                     vector<bool>(grid[0].size(), false));
-        return canReach(visited, grid, 0, 0);
+        int m = grid.size(), n = grid[0].size();
+        UnionFind uf(m * n);
+
+        auto get_id = [&n](int r, int c) { return r * n + c; };
+
+        for (int r = 0; r < m; ++r) {
+            for (int c = 0; c < n; ++c) {
+                int type = grid[r][c];
+
+                if (c + 1 < n) {
+                    int next_type = grid[r][c + 1];
+                    bool left_can_right = (type == 1 or type == 4 or type == 6);
+                    bool right_can_left =
+                        (next_type == 1 or next_type == 3 or next_type == 5);
+                    if (left_can_right and right_can_left) {
+                        uf.unite(get_id(r, c), get_id(r, c + 1));
+                    }
+                }
+
+                if (r + 1 < m) {
+                    int next_type = grid[r + 1][c];
+                    bool up_can_down = (type == 2 or type == 3 or type == 4);
+                    bool down_can_up =
+                        (next_type == 2 or next_type == 5 or next_type == 6);
+
+                    if (up_can_down and down_can_up) {
+                        uf.unite(get_id(r, c), get_id(r + 1, c));
+                    }
+                }
+            }
+        }
+
+        return uf.is_connected(get_id(0, 0), get_id(m - 1, n - 1));
     }
 };
 // @leet end
