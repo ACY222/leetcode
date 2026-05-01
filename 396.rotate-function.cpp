@@ -15,11 +15,9 @@ public:
         rotate_func = rotate_func_last;
 
         for (int k = 1; k < n; ++k) {
-            int rotate_func_k =
-                rotate_func_last + sum - n * nums[(2 * n - k) % n];
+            rotate_func_last += sum - n * nums[(2 * n - k) % n];
 
-            rotate_func = max(rotate_func, rotate_func_k);
-            rotate_func_last = rotate_func_k;
+            rotate_func = max(rotate_func, rotate_func_last);
         }
         return rotate_func;
     }
