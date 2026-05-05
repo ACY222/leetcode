@@ -11,8 +11,6 @@
  * right(right) {}
  * };
  */
-#include <stack>
-using namespace std;
 // struct TreeNode {
 //     int val;
 //     TreeNode *left;
@@ -30,54 +28,44 @@ private:
         second->val = temp;
     }
 
+    void detect(TreeNode *prev, TreeNode *curr, TreeNode *& first,
+                TreeNode *& second) {
+        if (prev and prev->val > curr->val) {
+            if (!first) first = prev;
+            second = curr;
+        }
+    }
+
 public:
     void recoverTree(TreeNode *root) {
-        TreeNode *first {nullptr}, *second {nullptr}, *curr {root};
-        stack<TreeNode *> st;
+        TreeNode *first {nullptr}, *second {nullptr}, *curr {root},
+            *prev {nullptr};
 
-        while (curr || !st.empty()) {
-            // keep pushing left subtrees
-            while (curr) {
-                st.push(curr);
-                curr = curr->left;
-            }
-            curr = st.top();
-            // Now curr is a leaf, or a parent with only right child
-            // But no matter what it is, curr's val comes first
-            st.pop();
-
-            if (first == nullptr) {
-                first = curr;
+        while (curr) {
+            if (!curr->left) {
+                detect(prev, curr, first, second);
+                prev = curr;
+                curr = curr->right;
             } else {
-                // first < curr
-                if (first->val < curr->val) {
-                    if (second != nullptr) {
-                        swap_val(first, second);
-                        return;
-                    } else {
-                        first = curr;
-                    }
+                auto pred = curr->left;
+
+                while (pred->right and pred->right != curr) {
+                    pred = pred->right;
                 }
-                // fisrt > curr
-                else {
-                    // second < curr
-                    if (second == nullptr or second->val < curr->val) {
-                        second = curr;
-                    }
-                    // curr < second < first
-                    else {
-                        second = curr;
-                        swap_val(first, second);
-                        return;
-                    }
+
+                if (!pred->right) {
+                    pred->right = curr;
+                    curr = curr->left;
+                } else {
+                    pred->right = nullptr;
+                    detect(prev, curr, first, second);
+                    prev = curr;
+                    curr = curr->right;
                 }
             }
-
-            // if curr is a leaf, then next loop we will cope with its parent
-            // tree if not, we will cope with its right subtree
-            curr = curr->right;
         }
 
+        // 1 3 2
         swap_val(first, second);
     }
 };
