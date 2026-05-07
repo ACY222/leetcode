@@ -35,6 +35,7 @@ public:
         UnionFind uf(n);
 
         for (int i = 0; i < n; ++i) {
+            if (uf.find(i) != i) { continue; }
             for (int j = i + 1; j < n; ++j) {
                 if (nums[i] > nums[j]) { uf.unite(nums, i, j); }
             }
