@@ -32,11 +32,13 @@ public:
         }
 
         vector<int> moves(2 * limit + 1);
+        int min_move = n;
         for (int i = 2; i <= 2 * limit; ++i) {
             moves[i] = moves[i - 1] + diff[i];
+            min_move = min(min_move, moves[i]);
         }
 
-        return *min_element(moves.begin() + 2, moves.end());
+        return min_move;
     }
 };
 // @leet end
