@@ -31,11 +31,10 @@ public:
             diff[lower + upper + 1] += 1;
         }
 
-        vector<int> moves(2 * limit + 1);
-        int min_move = n;
+        int curr_move = 0, min_move = n;
         for (int i = 2; i <= 2 * limit; ++i) {
-            moves[i] = moves[i - 1] + diff[i];
-            min_move = min(min_move, moves[i]);
+            curr_move += diff[i];
+            min_move = min(min_move, curr_move);
         }
 
         return min_move;
