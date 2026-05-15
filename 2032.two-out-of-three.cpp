@@ -3,23 +3,20 @@
 #include <vector>
 using namespace std;
 class Solution {
-private:
-    void process_nums(const vector<int>& nums, array<int, 101>& freqs,
-                      int flag) {
-        for (int num : nums) {
-            freqs[num] |= (1 << flag);
-        }
-    }
-
 public:
     vector<int> twoOutOfThree(vector<int>& nums1, vector<int>& nums2,
                               vector<int>& nums3) {
-        array<int, 101> freqs;
-        // 10, 100, 1000
-        //  2,   4,    8
-        process_nums(nums1, freqs, 1);
-        process_nums(nums2, freqs, 2);
-        process_nums(nums3, freqs, 3);
+        array<unsigned char, 101> freqs;
+
+        for (int num : nums1) {
+            freqs[num] |= 1;
+        } // 001
+        for (int num : nums2) {
+            freqs[num] |= 2;
+        } // 010
+        for (int num : nums3) {
+            freqs[num] |= 4;
+        } // 100
 
         vector<int> res;
         for (int num = 1; num <= 100; ++num) {
