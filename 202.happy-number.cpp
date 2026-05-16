@@ -1,26 +1,26 @@
 // @leet start
-#include <unordered_set>
-using namespace std;
 class Solution {
+private:
+    inline int get_next(int curr) {
+        int next = 0;
+        while (curr) {
+            int digit = curr % 10;
+            curr /= 10;
+            next += digit * digit;
+        }
+        return next;
+    }
+
 public:
     bool isHappy(int n) {
-        unordered_set<int> visited;
-        int curr = n;
-        while (visited.find(curr) == visited.end()) {
-            visited.insert(curr);
-
-            int next = 0;
-            while (curr > 0) {
-                int last = curr % 10;
-                next += last * last;
-                curr /= 10;
-            }
-
-            if (next == 1) { return true; }
-
-            curr = next;
+        int slow = n, fast = get_next(n);
+        while (fast != 1 and slow != fast) {
+            // can we memorize the list to reduce computation complexity?
+            slow = get_next(slow);
+            fast = get_next(get_next(fast));
         }
-        return false;
+
+        return fast == 1;
     }
 };
 // @leet end
