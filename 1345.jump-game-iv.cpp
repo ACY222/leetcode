@@ -2,55 +2,56 @@
 #include <queue>
 #include <unordered_map>
 #include <vector>
-using std::vector;
-using std::queue;
-using std::unordered_map;
+using namespace std;
 class Solution {
 public:
-  int minJumps(vector<int>& arr) {
-    int step {0};
-    vector<bool> visited(arr.size(), false);
-    unordered_map<int, vector<int>> valueToIndex {};
-    // find all the indices with the same value
-    for (int i = 0; i < arr.size(); ++i) {
-      valueToIndex[arr[i]].push_back(i);
+    // from i to
+    // i - 1 or i + 1, or j if arr[i] == arr[j]
+    int minJumps(vector<int>& arr) {
+        int n = arr.size();
+        if (n == 1) { return 0; }
+
+        int step = 0;
+        vector<bool> visited(n, false);
+        unordered_map<int, vector<int>> val_to_indices;
+        for (int i = 0; i < n; ++i) {
+            val_to_indices[arr[i]].push_back(i);
+        }
+
+        queue<int> q;
+        q.push(0);
+
+        while (!q.empty()) {
+            for (int size = q.size(); size > 0; --size) {
+                int curr_idx = q.front();
+                int curr_val = arr[curr_idx];
+                q.pop();
+
+                if (curr_idx == n - 1) { return step; }
+
+                if (visited[curr_idx]) { continue; }
+
+                visited[curr_idx] = true;
+
+                if (curr_idx - 1 > 0 and !visited[curr_idx - 1]) {
+                    q.push(curr_idx - 1);
+                }
+
+                if (curr_idx + 1 < n and !visited[curr_idx + 1]) {
+                    q.push(curr_idx + 1);
+                }
+
+                for (int next_idx : val_to_indices[curr_val]) {
+                    if (!visited[next_idx]) { q.push(next_idx); }
+                }
+
+                val_to_indices.erase(curr_val);
+            }
+
+            ++step;
+        }
+
+        return -1;
     }
-    queue<int> q({0});  // initialized with index 0
-    visited[0] = true;
-    while (!q.empty()) {
-      int size { (int)q.size() };
-      while (size > 0) {
-        int pos { q.front() };
-        q.pop();
-        --size;
-        // if we have reached the last index of the array
-        if (pos == arr.size() - 1) {
-          return step;
-        }
-        // if the index is legal and unvisited
-        if (pos + 1 < arr.size() && visited[pos + 1] == false) {
-          q.push(pos + 1);
-          visited[pos + 1] = true;
-        }
-        if (pos - 1 > 0 && visited[pos - 1] == false) {
-          q.push(pos - 1);
-          visited[pos - 1] = true;
-        }
-        // for all the indices but pos with the same value
-        // push into the vector
-        for (int i = 0; i < valueToIndex[arr[pos]].size(); ++i) {
-          if (visited[valueToIndex[arr[pos]][i]] == false) {
-            q.push(valueToIndex[arr[pos]][i]);
-            visited[valueToIndex[arr[pos]][i]] = true;
-          }
-        }
-        // clear the map with the specified key so that we won't visit them in
-        // the future
-        valueToIndex[arr[pos]].clear();
-      }
-      ++step;
-    }
-    return step;
-  }
 };
 // @leet end
