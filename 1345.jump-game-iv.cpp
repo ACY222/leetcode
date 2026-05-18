@@ -45,7 +45,7 @@ public:
                     if (!visited[next_idx]) { q.push(next_idx); }
                 }
 
-                val_to_indices.erase(curr_val);
+                val_to_indices[curr_val].clear();
             }
 
             ++step;
