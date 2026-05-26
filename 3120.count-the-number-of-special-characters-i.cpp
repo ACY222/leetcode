@@ -1,4 +1,5 @@
 // @leet start
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <string>
@@ -10,18 +11,18 @@ public:
 
         // 'A': 65
         // 'a': 97
-        for (char c : word) {
-            if (c >= 'a') { // a-z
+        for_each(word.begin(), word.end(), [&counts](char c) {
+            if (c >= 'a') {
                 counts[c - 'a'] |= 2;
-            } else { // A-Z
+            } else {
                 counts[c - 'A'] |= 1;
             }
-        }
+        });
 
         int number = 0;
-        for (int count : counts) {
+        for_each(counts.begin(), counts.end(), [&number](int8_t count) {
             if (count == 3) { ++number; }
-        }
+        });
         return number;
     }
 };
