@@ -1,8 +1,8 @@
 // @leet start
 #include <algorithm>
-#include <array>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 using namespace std;
 class Solution {
@@ -10,7 +10,7 @@ private:
     class Trie {
     private:
         struct TrieNode {
-            array<unique_ptr<TrieNode>, 26> children {};
+            unordered_map<int, unique_ptr<TrieNode>> children;
             int best_idx;
 
             TrieNode(int x) : best_idx(x) {}
