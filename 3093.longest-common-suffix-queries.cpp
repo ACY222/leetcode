@@ -1,8 +1,7 @@
 // @leet start
 #include <algorithm>
-#include <memory>
+#include <array>
 #include <string>
-#include <unordered_map>
 #include <vector>
 using namespace std;
 class Solution {
@@ -10,66 +9,72 @@ private:
     class Trie {
     private:
         struct TrieNode {
-            unordered_map<int, unique_ptr<TrieNode>> children;
-            int best_idx;
+            // stores the index to child
+            array<int, 26> children;
+            int best_idx = -1;
 
-            TrieNode(int x) : best_idx(x) {}
+            TrieNode() { children.fill(-1); }
         };
 
-        unique_ptr<TrieNode> root;
+        vector<TrieNode> trie;
 
-        int search(const string& query) {
-            auto curr = root.get();
-            for (int i = query.size() - 1; i >= 0; --i) {
-                int idx = query[i] - 'a';
-
-                if (!curr->children[idx]) { return curr->best_idx; }
-
-                curr = curr->children[idx].get();
+        void insert(const vector<string>& words, int index) {
+            const string& word = words[index];
+            int curr = 0;
+            if (trie[curr].best_idx == -1
+                or word.size() < words[trie[curr].best_idx].size()) {
+                trie[curr].best_idx = index;
             }
 
-            return curr->best_idx;
+            for (int idx = word.size() - 1; idx >= 0; --idx) {
+                int char_idx = word[idx] - 'a';
+
+                // if its child doesn't exist, create one
+                if (trie[curr].children[char_idx] == -1) {
+                    trie[curr].children[char_idx] = trie.size();
+                    trie.emplace_back();
+                }
+
+                curr = trie[curr].children[char_idx];
+
+                if (trie[curr].best_idx == -1
+                    or word.size() < words[trie[curr].best_idx].size()) {
+                    trie[curr].best_idx = index;
+                }
+            }
+        }
+
+        int search(const string& query) {
+            int curr = 0;
+            for (int idx = query.size() - 1; idx >= 0; --idx) {
+                int char_idx = query[idx] - 'a';
+                if (trie[curr].children[char_idx] == -1) { break; }
+
+                curr = trie[curr].children[char_idx];
+            }
+
+            return trie[curr].best_idx;
         }
 
     public:
-        Trie() : root(make_unique<TrieNode>(0)) {}
+        Trie() { trie.emplace_back(); }
 
         void build(const vector<string>& words) {
             for (int index = 0; index < words.size(); ++index) {
-                const auto& word = words[index];
-
-                auto curr = root.get();
-                if (word.size() < words[curr->best_idx].size()) {
-                    curr->best_idx = index;
-                }
-                for (int i = word.size() - 1; i >= 0; --i) {
-                    int idx = word[i] - 'a';
-
-                    if (!curr->children[idx]) {
-                        curr->children[idx] = make_unique<TrieNode>(index);
-                    } else {
-                        // if word.size is smaller, update index
-                        if (word.size()
-                            < words[curr->children[idx]->best_idx].size()) {
-                            curr->children[idx]->best_idx = index;
-                        }
-                    }
-
-                    curr = curr->children[idx].get();
-                }
+                this->insert(words, index);
             }
         }
 
         vector<int> search_all(const vector<string>& queries) {
-            vector<int> indices;
-            indices.reserve(queries.size());
+            vector<int> results;
+            results.reserve(queries.size());
 
             for_each(queries.begin(), queries.end(),
-                     [&indices, this](auto& query) {
-                         indices.push_back(search(query));
+                     [this, &results](const string& query) {
+                         results.push_back(this->search(query));
                      });
 
-            return indices;
+            return results;
         }
     };
 
