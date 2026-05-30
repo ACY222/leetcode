@@ -1,58 +1,78 @@
 // @leet start
-#include <map>
-#include <utility>
+#include <algorithm>
+#include <set>
 #include <vector>
+
 using namespace std;
 class Solution {
-public:
-    // query 1 = [1, x] -> place an obstacle at x
-    // query 2 = [2, x, sz] -> want to place a block in [0, x] with size sz
-    vector<bool> getResults(vector<vector<int>>& queries) {
-        map<int, int> blocks {{0, 0}};
-        vector<bool> ans;
-        for (const vector<int>& query : queries) {
-            if (query[0] == 1) {
-                int x = query[1];
-                auto next = blocks.upper_bound(x);
+    class SegmentTree {
+    private:
+        int n;
+        vector<int> tree;
 
-                // largest x
-                if (next == blocks.end()) {
-                    blocks.emplace(x, x - blocks.rbegin()->first);
-                    continue;
-                }
+    public:
+        SegmentTree(int n) {
+            this->n = n;
+            this->tree.assign(2 * n, 0);
+        }
 
-                next->second = next->first - x;
+        void update(int idx, int val) {
+            idx += n;
+            tree[idx] = val;
 
-                auto prev = --next;
-                blocks.emplace(x, x - prev->first);
-            } else {
-                int x = query[1], size = query[2];
-                if (x < size) {
-                    ans.push_back(false);
-                    continue;
-                }
-
-                bool can_place = false;
-
-                auto it = blocks.begin();
-                while (it != blocks.end() and it->first < x) {
-                    if (it->second >= size) {
-                        can_place = true;
-                        break;
-                    }
-                    ++it;
-                }
-
-                if (can_place == false) {
-                    --it;
-                    can_place = (x - it->first) >= size;
-                }
-
-                ans.push_back(can_place);
+            for (idx /= 2; idx > 0; idx /= 2) {
+                tree[idx] = max(tree[idx * 2], tree[idx * 2 + 1]);
             }
         }
 
-        return ans;
+        int query(int x) {
+            int res = 0;
+
+            for (int left = n, right = x + n + 1; left < right;
+                 left >>= 1, right >>= 1) {
+                // ask parent whenever you can
+                if ((left & 1) == 1) { res = max(res, tree[left++]); }
+                if ((right & 1) == 1) { res = max(res, tree[--right]); }
+            }
+
+            return res;
+        }
+    };
+
+public:
+    vector<bool> getResults(vector<vector<int>>& queries) {
+        int max_idx = 0;
+        for (const vector<int>& query : queries) {
+            max_idx = max(max_idx, query[1]);
+        }
+
+        SegmentTree tree(max_idx + 1);
+        set<int> obstacles {0};
+        vector<bool> answer;
+        answer.reserve(queries.size());
+
+        for (const vector<int>& query : queries) {
+            if (query[0] == 1) {
+                int obs = query[1];
+
+                auto it = obstacles.insert(obs).first;
+                // update previous obstacle
+                tree.update(obs, obs - *prev(it));
+                // update next obstracle if it exists
+                if (next(it) != obstacles.end()) {
+                    tree.update(*next(it), *next(it) - obs);
+                }
+            } else {
+                int x = query[1], size = query[2];
+
+                int tree_gap = tree.query(x);
+                auto it = obstacles.upper_bound(x);
+                int end_gap = x - *prev(it);
+
+                answer.push_back(size <= max(tree_gap, end_gap));
+            }
+        }
+        return answer;
     }
 };
 // @leet end
