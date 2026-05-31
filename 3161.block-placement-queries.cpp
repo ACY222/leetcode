@@ -18,10 +18,14 @@ class Solution {
 
         void update(int idx, int val) {
             idx += n;
-            tree[idx] = val;
 
-            for (idx /= 2; idx > 0; idx /= 2) {
-                tree[idx] = max(tree[idx * 2], tree[idx * 2 + 1]);
+            // otherwise, we don't need to modify the tree
+            if (tree[idx] != val) {
+                tree[idx] = val;
+
+                for (idx /= 2; idx > 0; idx /= 2) {
+                    tree[idx] = max(tree[idx * 2], tree[idx * 2 + 1]);
+                }
             }
         }
 
