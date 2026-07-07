@@ -1,52 +1,36 @@
 // @leet start
-use std::iter::FromIterator;
-
-struct Find {
-    index: usize,
-    i: usize,
-    need_replace: bool,
-}
-
 impl Solution {
-    pub fn find_replace_string(
-        s: String,
-        indices: Vec<i32>,
-        sources: Vec<String>,
-        targets: Vec<String>) -> String {
-
+    pub fn find_replace_string(s: String, indices: Vec<i32>, sources: Vec<String>, targets: Vec<String>) -> String {
         let k = indices.len();
-        let mut s = s;
-        let mut finds = Vec::from_iter((0..k).map(|i| Find {
-            index: indices[i] as usize,
-            i: i as usize,
-            need_replace: false
-        }));
+        let mut operations: Vec<(usize, &str, &str)> = indices
+            .iter()
+            .zip(sources.iter())
+            .zip(targets.iter())
+            .map(|((&idx, src), tgt)| (idx as usize, src.as_str(), tgt.as_str()))
+            .collect();
 
-        for i in 0..k {
-            finds[i].need_replace = Self::is_substring_match(&s, indices[i] as usize, &sources[i]);
-        }
+        operations.sort_unstable_by_key(|&(idx, _, _)| idx);
 
-        finds.sort_by(|find1, find2| find2.index.cmp(&find1.index));
+        let mut result = String::with_capacity(k);
+        let mut pos: usize = 0;
 
-        for i in 0..k {
-            if finds[i].need_replace {
-                Self::replace_substring(&mut s, indices[finds[i].i] as usize, sources[finds[i].i].len(), &targets[finds[i].i]);
+        for (idx, src, tgt) in operations {
+            if pos > idx {
+                continue;
+            }
+
+            result.push_str(&s[pos..idx]);
+            pos = idx;
+
+            if s[idx..].starts_with(src) {
+                result.push_str(tgt);
+                pos += src.len();
             }
         }
 
-        s
-    }
+        result.push_str(&s[pos..]);
 
-    fn is_substring_match(s: &str, index: usize, pattern: &str) -> bool {
-        if index + pattern.len() > s.len() {
-            return false;
-        }
-
-        &s[index..index + pattern.len()] == pattern
-    }
-
-    fn replace_substring(s: &mut String, index: usize, len: usize, target: &str) {
-        s.replace_range(index..index + len, target);
+        result
     }
 }
 // @leet end
