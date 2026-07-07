@@ -1,18 +1,19 @@
 // @leet start
 impl Solution {
-    pub fn sum_and_multiply(mut n: i32) -> i64 {
-        let mut x = 0i64;
-        let mut sum = 0i64;
-        let mut count = 0u32;
+    pub fn sum_and_multiply(n: i32) -> i64 {
+        let mut n = n;
+        let mut x: i64 = 0;
+        let mut sum: i64 = 0;
+        let mut multiplier: i64 = 1;
 
         while n > 0 {
             let last = (n % 10) as i64;
             n /= 10;
 
             if last != 0 {
-                x += last * 10i64.pow(count);
+                x += last * multiplier;
                 sum += last;
-                count += 1;
+                multiplier *= 10;
             }
         }
 
