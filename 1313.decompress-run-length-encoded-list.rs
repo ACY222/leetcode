@@ -1,12 +1,11 @@
 // @leet start
 impl Solution {
     pub fn decompress_rl_elist(nums: Vec<i32>) -> Vec<i32> {
-        let mut result: Vec<i32> = Vec::with_capacity(nums.len());
+        let total_size = nums.chunks_exact(2).map(|c| c[0] as usize).sum();
+        let mut result = Vec::with_capacity(total_size);
 
-        for (freq, val) in nums.chunks_exact(2).map(|c| (c[0], c[1])) {
-            for _ in 0..freq {
-                result.push(val);
-            }
+        for c in nums.chunks_exact(2) {
+            result.extend(std::iter::repeat(c[1]).take(c[0] as usize));
         }
 
         result
