@@ -2,21 +2,20 @@
 impl Solution {
     pub fn max_sum_range_query(nums: Vec<i32>, requests: Vec<Vec<i32>>) -> i32 {
         let n = nums.len();
-        let mut diff = vec![0; n];
+        let mut diff = vec![0; n + 1];
 
         for req in requests {
             let start = req[0] as usize;
             let end = req[1] as usize;
 
             diff[start] += 1;
-            if end < n - 1 {
-                diff[end + 1] -= 1;
-            }
+            diff[end + 1] -= 1;
         }
 
-        for i in 1..diff.len() {
+        for i in 1..n {
             diff[i] += diff[i - 1];
         }
+        diff.pop();
 
         diff.sort_unstable();
         let mut nums = nums;
