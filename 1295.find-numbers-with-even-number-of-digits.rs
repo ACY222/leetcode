@@ -13,8 +13,19 @@ impl Solution {
     }
 
     fn has_even_digits(num: i32) -> bool {
-        let num_digits = num.to_string().len();
-        num_digits % 2 == 0
+        if num < 10 {
+            false
+        } else if num < 100 {
+            true
+        } else if num < 1_000 {
+            false
+        } else if num < 10_000 {
+            true
+        } else if num < 100_000 {
+            false
+        } else {
+            true
+        }
     }
 }
 // @leet end
