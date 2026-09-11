@@ -3,67 +3,35 @@ use std::cmp::Ordering;
 
 impl Solution {
     pub fn check_valid_string(s: String) -> bool {
-        let bytes = s.as_bytes();
+        let mut open_stack = Vec::new();
+        let mut star_stack = Vec::new();
 
-        let mut num_open = 0;
-        let mut num_close = 0;
-        let mut num_star = 0;
-
-        for &byte in bytes {
-            match byte {
-                b'(' => {
-                    num_open += 1;
+        for (idx, char) in s.chars().enumerate() {
+            match char {
+                '(' => open_stack.push(idx),
+                ')' => {
+                    if let Some(_) = open_stack.pop() {
+                        continue;
+                    } else if let Some(_) = star_stack.pop() {
+                        continue;
+                    } else {
+                        return false;
+                    }
                 }
-                b'*' => {
-                    num_star += 1;
-                }
-                b')' => {
-                    num_close += 1;
-                }
-                _ => {}
+                _ => star_stack.push(idx),
             }
         }
 
-        let (mut new_open, mut need_skip) = match num_open.cmp(&num_close) {
-            Ordering::Less => {
-                let diff = num_close - num_open;
-                ((num_star + diff) / 2, (num_star - diff) % 2 == 1)
-            }
-            Ordering::Equal => (num_star / 2, num_star % 2 == 1),
-            Ordering::Greater => {
-                let diff = num_open - num_close;
-                ((num_star - diff) / 2, (num_star - diff) % 2 == 1)
-            }
-        };
-
-        let mut num_open = 0;
-        for &byte in bytes {
-            if byte == b'(' {
-                num_open += 1;
-            } else if byte == b')' {
-                num_open -= 1;
+        while !open_stack.is_empty() && !star_stack.is_empty() {
+            if open_stack.last().unwrap() < star_stack.last().unwrap() {
+                open_stack.pop();
+                star_stack.pop();
             } else {
-                // *
-                if new_open > 0 {
-                    num_open += 1;
-                    new_open -= 1;
-                } else if need_skip {
-                    need_skip = false;
-                } else {
-                    num_open -= 1;
-                }
-            }
-
-            if num_open < 0 {
                 return false;
             }
         }
 
-        if num_open != 0 {
-            return false;
-        }
-
-        true
+        open_stack.is_empty()
     }
 }
 // @leet end
