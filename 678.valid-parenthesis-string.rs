@@ -22,16 +22,12 @@ impl Solution {
             }
         }
 
-        while !open_stack.is_empty() && !star_stack.is_empty() {
-            if open_stack.last().unwrap() < star_stack.last().unwrap() {
-                open_stack.pop();
-                star_stack.pop();
-            } else {
-                return false;
-            }
-        }
-
-        open_stack.is_empty()
+        open_stack.len() <= star_stack.len()
+            && open_stack
+                .iter()
+                .rev()
+                .zip(star_stack.iter().rev())
+                .all(|(i, j)| i < j)
     }
 }
 // @leet end
