@@ -9,32 +9,30 @@ impl Solution {
 
         let mut count = 0;
         for a in (1..=9) {
+            if freq[a as usize] == 0 {
+                continue;
+            }
+
+            freq[a as usize] -= 1;
+
             for b in (0..=9) {
+                if freq[b as usize] == 0 {
+                    continue;
+                }
+
+                freq[b as usize] -= 1;
+
                 for c in (0..=8).step_by(2) {
-                    if freq[a as usize] == 0 || freq[b as usize] == 0 || freq[c as usize] == 0 {
+                    if freq[c as usize] == 0 {
                         continue;
                     }
-                    if a == b && b == c {
-                        if freq[a as usize] < 3 {
-                            continue;
-                        }
-                    } else if a == b {
-                        if freq[a as usize] < 2 {
-                            continue;
-                        }
-                    } else if a == c {
-                        if freq[a as usize] < 2 {
-                            continue;
-                        }
-                    } else if b == c {
-                        if freq[b as usize] < 2 {
-                            continue;
-                        }
-                    }
-
                     count += 1;
                 }
+
+                freq[b as usize] += 1;
             }
+
+            freq[a as usize] += 1;
         }
 
         count
