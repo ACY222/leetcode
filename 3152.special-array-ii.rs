@@ -21,22 +21,19 @@ impl Solution {
             idx += 1;
         }
 
-        let mut results = Vec::new();
-        results.reserve(queries.len());
-        for query in queries {
+        let mut results = vec![false; queries.len()];
+        for (i, query) in queries.iter().enumerate() {
             let from = query[0];
             let to = query[1];
 
             if from == to {
-                results.push(true);
+                results[i] = true;
                 continue;
             }
 
             let idx = special_arrays.partition_point(|&(start, _)| start <= from);
             if idx > 0 && special_arrays[idx - 1].1 >= to {
-                results.push(true);
-            } else {
-                results.push(false);
+                results[i] = true;
             }
         }
 
