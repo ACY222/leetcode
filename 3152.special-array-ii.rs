@@ -2,38 +2,24 @@
 impl Solution {
     pub fn is_array_special(nums: Vec<i32>, queries: Vec<Vec<i32>>) -> Vec<bool> {
         let len = nums.len();
-        let mut special_arrays = Vec::new();
-        let mut idx = 0;
+        let mut num_non_special_pairs = vec![0; len];
 
-        while idx < len - 1 {
-            // is special pair
-            if (nums[idx] - nums[idx + 1]) % 2 != 0 {
-                let from = idx as i32;
+        for idx in 1..len {
+            num_non_special_pairs[idx] = num_non_special_pairs[idx - 1];
 
-                while idx < len - 1 && (nums[idx] - nums[idx + 1]) % 2 != 0 {
-                    idx += 1;
-                }
-
-                let to = idx as i32;
-                special_arrays.push((from, to));
+            if (nums[idx] - nums[idx - 1]) % 2 == 0 {
+                num_non_special_pairs[idx] += 1;
             }
-
-            idx += 1;
         }
 
         let mut results = vec![false; queries.len()];
-        for (i, query) in queries.iter().enumerate() {
-            let from = query[0];
-            let to = query[1];
 
-            if from == to {
-                results[i] = true;
-                continue;
-            }
+        for (idx, query) in queries.iter().enumerate() {
+            let from = query[0] as usize;
+            let to = query[1] as usize;
 
-            let idx = special_arrays.partition_point(|&(start, _)| start <= from);
-            if idx > 0 && special_arrays[idx - 1].1 >= to {
-                results[i] = true;
+            if num_non_special_pairs[to] - num_non_special_pairs[from] == 0 {
+                results[idx] = true;
             }
         }
 
