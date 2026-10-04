@@ -8,74 +8,27 @@ impl Solution {
     ) -> i32 {
         let days = k as usize; // k days
         let cities = n as usize; // n cities
-        let mut res = 0;
 
-        let mut dp = vec![vec![-1; cities]; days];
+        // max scores ending at cities j
+        let mut dp = vec![0; cities];
 
         for day in 0..days {
-            for curr in 0..cities {
-                res = res.max(
-                    stay_score[day][curr]
-                        + solve(
-                            &stay_score,
-                            &travel_score,
-                            &mut dp,
-                            day + 1,
-                            curr,
-                            days,
-                            cities,
-                        ),
-                );
+            let mut new_dp = vec![0; cities];
 
-                for dest in 0..cities {
-                    res = res.max(
-                        travel_score[curr][dest]
-                            + solve(
-                                &stay_score,
-                                &travel_score,
-                                &mut dp,
-                                day + 1,
-                                dest,
-                                days,
-                                cities,
-                            ),
-                    );
+            for dest in 0..cities {
+                // stay at dest
+                new_dp[dest] = dp[dest] + stay_score[day][dest];
+
+                // travel to dest
+                for curr in 0..cities {
+                    new_dp[dest] = new_dp[dest].max(dp[curr] + travel_score[curr][dest]);
                 }
             }
+
+            dp = new_dp;
         }
 
-        res
+        dp.iter().copied().max().unwrap_or(0)
     }
-}
-
-fn solve(
-    stay_score: &[Vec<i32>],
-    travel_score: &[Vec<i32>],
-    dp: &mut [Vec<i32>],
-    day: usize,
-    curr: usize,
-    days: usize,
-    cities: usize,
-) -> i32 {
-    if day >= days {
-        return 0;
-    }
-
-    if dp[day][curr] != -1 {
-        return dp[day][curr];
-    }
-
-    let mut res =
-        stay_score[day][curr] + solve(stay_score, travel_score, dp, day + 1, curr, days, cities);
-
-    for dest in 0..cities {
-        res = res.max(
-            travel_score[curr][dest]
-                + solve(stay_score, travel_score, dp, day + 1, dest, days, cities),
-        );
-    }
-
-    dp[day][curr] = res;
-    res
 }
 // @leet end
