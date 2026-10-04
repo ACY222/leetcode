@@ -6,36 +6,76 @@ impl Solution {
         stay_score: Vec<Vec<i32>>,
         travel_score: Vec<Vec<i32>>,
     ) -> i32 {
-        let k = k as usize; // k days
-        let n = n as usize; // n cities
-                            // dp[i][j]: The maximum score you can earn in first i-days when ending at j city
-                            // day
-        let mut dp = vec![vec![0; n]; k];
+        let days = k as usize; // k days
+        let cities = n as usize; // n cities
+        let mut res = 0;
 
-        for day in 0..k {
-            for dest in 0..n {
-                let mut max_score = 0;
-                for curr in 0..n {
-                    let mut base = 0;
-                    if day > 0 {
-                        base = dp[day - 1][curr];
-                    }
+        let mut dp = vec![vec![-1; cities]; days];
 
-                    let curr_score = base
-                        + if curr == dest {
-                            stay_score[day][curr]
-                        } else {
-                            travel_score[curr][dest]
-                        };
+        for day in 0..days {
+            for curr in 0..cities {
+                res = res.max(
+                    stay_score[day][curr]
+                        + solve(
+                            &stay_score,
+                            &travel_score,
+                            &mut dp,
+                            day + 1,
+                            curr,
+                            days,
+                            cities,
+                        ),
+                );
 
-                    max_score = max_score.max(curr_score);
+                for dest in 0..cities {
+                    res = res.max(
+                        travel_score[curr][dest]
+                            + solve(
+                                &stay_score,
+                                &travel_score,
+                                &mut dp,
+                                day + 1,
+                                dest,
+                                days,
+                                cities,
+                            ),
+                    );
                 }
-
-                dp[day][dest] = max_score;
             }
         }
 
-        dp[k - 1].iter().copied().max().unwrap()
+        res
     }
+}
+
+fn solve(
+    stay_score: &[Vec<i32>],
+    travel_score: &[Vec<i32>],
+    dp: &mut [Vec<i32>],
+    day: usize,
+    curr: usize,
+    days: usize,
+    cities: usize,
+) -> i32 {
+    if day >= days {
+        return 0;
+    }
+
+    if dp[day][curr] != -1 {
+        return dp[day][curr];
+    }
+
+    let mut res =
+        stay_score[day][curr] + solve(stay_score, travel_score, dp, day + 1, curr, days, cities);
+
+    for dest in 0..cities {
+        res = res.max(
+            travel_score[curr][dest]
+                + solve(stay_score, travel_score, dp, day + 1, dest, days, cities),
+        );
+    }
+
+    dp[day][curr] = res;
+    res
 }
 // @leet end
