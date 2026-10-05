@@ -1,24 +1,28 @@
 // @leet start
 impl Solution {
     pub fn num_subarrays_with_sum(nums: Vec<i32>, goal: i32) -> i32 {
-        let mut freq = vec![0; nums.len() + 1];
-        freq[0] = 1;
-        let mut res = 0;
+        Self::at_most(&nums, goal) - Self::at_most(&nums, goal - 1)
+    }
 
-        let mut prefix_sum = 0;
-        for num in nums {
-            prefix_sum += num;
+    fn at_most(nums: &[i32], goal: i32) -> i32 {
+        if goal < 0 {
+            return 0;
+        }
+        let mut left = 0;
+        let mut sum = 0;
+        let mut count = 0;
 
-            if prefix_sum >= goal {
-                let target = prefix_sum - goal;
+        for right in 0..nums.len() {
+            sum += nums[right];
 
-                res += freq[target as usize];
+            while sum > goal {
+                sum -= nums[left];
+                left += 1;
             }
 
-            freq[prefix_sum as usize] += 1;
+            count += (right - left + 1) as i32;
         }
-
-        res
+        count
     }
 }
 // @leet end
