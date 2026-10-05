@@ -5,15 +5,17 @@ impl Solution {
         let prefix_sum = get_prefix_sum(&nums);
 
         for start in 0..nums.len() {
-            for end in start..nums.len() {
-                let curr_sum = prefix_sum[end] - if start == 0 { 0 } else { prefix_sum[start - 1] };
-                if curr_sum == goal {
-                    total_num += 1;
-                }
+            let base = if start == 0 { 0 } else { prefix_sum[start - 1] };
+            let end = usize::max(start, prefix_sum.partition_point(|&sum| sum - base < goal));
+
+            if end == prefix_sum.len() {
+                break;
             }
+
+            total_num += prefix_sum[end..].partition_point(|&sum| sum - base <= goal);
         }
 
-        total_num
+        total_num as i32
     }
 }
 fn get_prefix_sum(nums: &[i32]) -> Vec<i32> {
