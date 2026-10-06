@@ -7,13 +7,15 @@ impl Solution {
 
         let mut units = 0;
         for box_type in &mut box_types {
-            while box_type[0] > 0 && truck_size > 0 {
-                units += box_type[1];
-                truck_size -= 1;
-                box_type[0] -= 1;
-            }
+            let count = box_type[0];
+            let unit = box_type[1];
 
-            if truck_size == 0 {
+            if truck_size >= count {
+                units += unit * count;
+                truck_size -= count;
+            } else {
+                units += unit * truck_size;
+                // truck_size = 0;
                 break;
             }
         }
@@ -22,4 +24,3 @@ impl Solution {
     }
 }
 // @leet end
-
