@@ -11,6 +11,8 @@ impl Solution {
 
                 if min > max {
                     count += 1;
+                } else if max > nums[i] {
+                    break;
                 }
             }
         }
