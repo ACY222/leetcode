@@ -6,15 +6,10 @@ impl Solution {
             let mut n2 = 1;
             let mut n3 = 1;
 
-            let mut res = 2;
-
             for _ in 3..=n {
-                res = n1 + n2 + n3;
-                n1 = n2;
-                n2 = n3;
-                n3 = res;
+                (n1, n2, n3) = (n2, n3, n1 + n2 + n3);
             }
-            res
+            n3
         } else if n == 0 {
             0
         } else {
@@ -23,4 +18,3 @@ impl Solution {
     }
 }
 // @leet end
-
