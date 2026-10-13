@@ -11,17 +11,15 @@ impl Solution {
             return 0;
         }
 
-        // has two 1, located on the first and last position
-        if bytes[0] == b'1' && bytes[bytes.len() - 1] == b'1' {
-            if one_count == 2 {
-                return 0;
-            }
-
-            return usize::min(one_count - 2, zero_count) as i32;
-        }
-
-        return usize::min(one_count - 1, zero_count) as i32;
+        return usize::min(
+            one_count
+                - if bytes[0] == b'1' && bytes[bytes.len() - 1] == b'1' {
+                    2
+                } else {
+                    1
+                },
+            zero_count,
+        ) as i32;
     }
 }
 // @leet end
-
