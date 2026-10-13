@@ -1,10 +1,16 @@
 // @leet start
 impl Solution {
     pub fn min_flips(s: String) -> i32 {
-        let one_count = s.matches('1').count();
-        let zero_count = s.len() - one_count;
-
         let bytes = s.into_bytes();
+
+        let mut one_count = 0;
+        for &b in &bytes {
+            if b == b'1' {
+                one_count += 1;
+            }
+        }
+
+        let zero_count = bytes.len() - one_count;
 
         // all 0 or at most one 1
         if zero_count == 0 || one_count < 2 {
