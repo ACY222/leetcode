@@ -5,7 +5,7 @@ impl Solution {
     pub fn count_black_blocks(m: i32, n: i32, coordinates: Vec<Vec<i32>>) -> Vec<i64> {
         let m = m as usize;
         let n = n as usize;
-        let mut count_black_blocks = HashMap::new();
+        let mut block_counts = HashMap::with_capacity(coordinates.len() * 4);
         let cols = n - 1;
 
         for coordinate in coordinates {
@@ -13,23 +13,21 @@ impl Solution {
             let y = coordinate[1] as usize;
 
             if x > 0 && y > 0 {
-                *count_black_blocks
-                    .entry((x - 1) * cols + y - 1)
-                    .or_insert(0) += 1;
+                *block_counts.entry((x - 1) * cols + y - 1).or_insert(0) += 1;
             }
             if x > 0 && y < n - 1 {
-                *count_black_blocks.entry((x - 1) * cols + y).or_insert(0) += 1;
+                *block_counts.entry((x - 1) * cols + y).or_insert(0) += 1;
             }
             if x < m - 1 && y > 0 {
-                *count_black_blocks.entry(x * cols + y - 1).or_insert(0) += 1;
+                *block_counts.entry(x * cols + y - 1).or_insert(0) += 1;
             }
             if x < m - 1 && y < n - 1 {
-                *count_black_blocks.entry(x * cols + y).or_insert(0) += 1;
+                *block_counts.entry(x * cols + y).or_insert(0) += 1;
             }
         }
 
         let mut res = vec![0; 5];
-        for (_, count) in count_black_blocks {
+        for &count in block_counts.values() {
             res[count] += 1;
         }
 
