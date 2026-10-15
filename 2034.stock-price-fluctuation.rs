@@ -22,18 +22,15 @@ impl StockPrice {
 
     fn update(&mut self, timestamp: i32, price: i32) {
         // handle with old entry
-        if self.time_to_price.contains_key(&timestamp) {
-            let old_price = self.time_to_price.get(&timestamp).unwrap();
-            if self.price_to_count.get(old_price) == Some(&1) {
-                self.price_to_count.remove(old_price);
+        if let Some(old_price) = self.time_to_price.insert(timestamp, price) {
+            let count = self.price_to_count.get_mut(&old_price).unwrap();
+            if *count == 1 {
+                self.price_to_count.remove(&old_price);
             } else {
-                *self.price_to_count.get_mut(old_price).unwrap() -= 1;
+                *count -= 1;
             }
         }
-        self.time_to_price.insert(timestamp, price);
-        if timestamp > self.curr_time {
-            self.curr_time = timestamp;
-        }
+        self.curr_time = self.curr_time.max(timestamp);
 
         *self.price_to_count.entry(price).or_insert(0) += 1;
     }
