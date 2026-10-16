@@ -10,8 +10,7 @@ struct Robot {
     // width and height have been -= 1
     width: i32,
     height: i32,
-    idx: i32,
-    moved: bool,
+    step: i32,
 }
 
 /**
@@ -23,42 +22,40 @@ impl Robot {
         Robot {
             width: width - 1,
             height: height - 1,
-            idx: 0,
-            moved: false,
+            step: 0,
         }
     }
 
     fn step(&mut self, num: i32) {
-        self.moved = true;
-        self.idx = (self.idx + num) % (2 * (self.width + self.height));
+        self.step += num;
     }
 
     fn get_pos(&self) -> Vec<i32> {
-        return if self.idx <= self.width {
-            vec![self.idx, 0]
-        } else if self.idx <= self.width + self.height {
-            vec![self.width, self.idx - self.width]
-        } else if self.idx <= 2 * self.width + self.height {
-            vec![2 * self.width + self.height - self.idx, self.height]
-        } else {
-            vec![0, 2 * (self.width + self.height) - self.idx]
-        };
+        let (x, y, _) = Self::map(&self);
+        vec![x, y]
     }
 
     fn get_dir(&self) -> String {
-        if self.idx == 0 && self.moved {
-            return String::from("South");
-        }
-
-        return if self.idx <= self.width {
-            String::from("East")
-        } else if self.idx <= self.width + self.height {
-            String::from("North")
-        } else if self.idx <= 2 * self.width + self.height {
-            String::from("West")
+        let (x, y, dir) = Self::map(&self);
+        return String::from(if x + y == 0 && self.step != 0 {
+            "South"
         } else {
-            String::from("South")
-        };
+            dir
+        });
+    }
+
+    fn map(&self) -> (i32, i32, &str) {
+        let perimeter = 2 * (self.width + self.height);
+        let step = self.step % perimeter;
+
+        match step {
+            s if s <= self.width => (s, 0, "East"),
+            s if s <= self.width + self.height => (self.width, s - self.width, "North"),
+            s if s <= 2 * self.width + self.height => {
+                (2 * self.width + self.height - s, self.height, "West")
+            }
+            s => (0, perimeter - s, "South"),
+        }
     }
 }
 // @leet end
