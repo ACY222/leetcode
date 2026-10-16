@@ -11,8 +11,7 @@ struct Robot {
     width: i32,
     height: i32,
     idx: i32,
-    dir: Dir,
-    is_start_point: bool,
+    moved: bool,
 }
 
 /**
@@ -25,15 +24,13 @@ impl Robot {
             width: width - 1,
             height: height - 1,
             idx: 0,
-            dir: Dir::East,
-            is_start_point: true,
+            moved: false,
         }
     }
 
     fn step(&mut self, num: i32) {
-        self.is_start_point = false;
-        self.idx += num;
-        self.idx %= 2 * (self.width + self.height);
+        self.moved = true;
+        self.idx = (self.idx + num) % (2 * (self.width + self.height));
     }
 
     fn get_pos(&self) -> Vec<i32> {
@@ -49,13 +46,10 @@ impl Robot {
     }
 
     fn get_dir(&self) -> String {
-        if self.idx == 0 {
-            return if self.is_start_point {
-                String::from("East")
-            } else {
-                String::from("South")
-            };
+        if self.idx == 0 && self.moved {
+            return String::from("South");
         }
+
         return if self.idx <= self.width {
             String::from("East")
         } else if self.idx <= self.width + self.height {
@@ -67,11 +61,4 @@ impl Robot {
         };
     }
 }
-/**
- * Your Robot object will be instantiated and called as such:
- * let obj = Robot::new(width, height);
- * obj.step(num);
- * let ret_2: Vec<i32> = obj.get_pos();
- * let ret_3: String = obj.get_dir();
- */
 // @leet end
