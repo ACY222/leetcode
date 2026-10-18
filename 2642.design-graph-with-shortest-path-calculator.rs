@@ -79,26 +79,28 @@ impl Graph {
         let mut dist = vec![i32::MAX; self.nodes.len()];
         let mut heap = BinaryHeap::new();
 
-        heap.push(State {
-            id: node1 as usize,
-            cost: 0,
-        });
+        let node1 = node1 as usize;
+        dist[node1] = 0;
+        heap.push(State { id: node1, cost: 0 });
 
-        while let Some(State { id: from, cost }) = heap.pop() {
-            dist[from] = cost;
-            if from == node2 as usize {
-                return dist[from];
+        while let Some(State { id: curr, cost }) = heap.pop() {
+            if cost > dist[curr] {
+                continue;
             }
 
-            for edge in &self.nodes[from].edges {
-                let Edge { to, weight } = edge;
-                let to = *to as usize;
+            if curr == node2 as usize {
+                return dist[curr];
+            }
 
-                if dist[to] > dist[from] + weight {
-                    dist[to] = dist[from] + weight;
+            for edge in &self.nodes[curr].edges {
+                let Edge { to: next, weight } = edge;
+                let next = *next as usize;
+
+                if dist[next] > dist[curr] + weight {
+                    dist[next] = dist[curr] + weight;
                     heap.push(State {
-                        id: to,
-                        cost: dist[to],
+                        id: next,
+                        cost: dist[next],
                     });
                 }
             }
@@ -107,6 +109,7 @@ impl Graph {
         -1
     }
 }
+
 /**
  * Your Graph object will be instantiated and called as such:
  * let obj = Graph::new(n, edges);
