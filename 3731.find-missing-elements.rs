@@ -1,24 +1,18 @@
 // @leet start
-use std::collections::BTreeSet;
 impl Solution {
     pub fn find_missing_elements(nums: Vec<i32>) -> Vec<i32> {
-        let mut min = nums[0];
-        let mut max = nums[0];
-        let mut missing_elements = BTreeSet::new();
-
-        for &num in nums[1..].iter() {
-            if num < min {
-                missing_elements.extend(num + 1..min);
-                min = num;
-            } else if num > max {
-                missing_elements.extend(max + 1..num);
-                max = num;
-            } else {
-                missing_elements.remove(&num);
-            }
+        let mut nums = nums;
+        nums.sort_unstable();
+        let gap = nums.last().unwrap() - nums.first().unwrap();
+        let mut missing_elements = Vec::with_capacity(gap as usize - nums.len() + 1);
+        let mut curr = nums[0];
+        for &num in &nums[1..] {
+            curr += 1;
+            missing_elements.extend(curr..num);
+            curr = num;
         }
 
-        missing_elements.into_iter().collect()
+        missing_elements
     }
 }
 // @leet end
