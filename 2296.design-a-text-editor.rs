@@ -1,7 +1,7 @@
 // @leet start
 struct TextEditor {
-    left: String,
-    right: String,
+    left: Vec<char>,
+    right: Vec<char>,
 }
 
 /**
@@ -11,13 +11,15 @@ struct TextEditor {
 impl TextEditor {
     fn new() -> Self {
         TextEditor {
-            left: String::new(),
-            right: String::new(),
+            left: Vec::new(),
+            right: Vec::new(),
         }
     }
 
     fn add_text(&mut self, text: String) {
-        self.left.push_str(&text);
+        for c in text.chars() {
+            self.left.push(c);
+        }
     }
 
     fn delete_text(&mut self, k: i32) -> i32 {
@@ -27,7 +29,6 @@ impl TextEditor {
     }
 
     fn cursor_left(&mut self, k: i32) -> String {
-        let k = k as usize;
         for _ in 0..k {
             if let Some(c) = self.left.pop() {
                 self.right.push(c);
@@ -36,11 +37,12 @@ impl TextEditor {
             }
         }
 
-        self.left[self.left.len().saturating_sub(10)..].to_string()
+        self.left[self.left.len().saturating_sub(10)..]
+            .iter()
+            .collect()
     }
 
     fn cursor_right(&mut self, k: i32) -> String {
-        let k = k as usize;
         for _ in 0..k {
             if let Some(c) = self.right.pop() {
                 self.left.push(c);
@@ -49,7 +51,9 @@ impl TextEditor {
             }
         }
 
-        self.left[self.left.len().saturating_sub(10)..].to_string()
+        self.left[self.left.len().saturating_sub(10)..]
+            .iter()
+            .collect()
     }
 }
 /**
