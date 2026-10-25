@@ -22,24 +22,34 @@ impl TextEditor {
 
     fn delete_text(&mut self, k: i32) -> i32 {
         let num_to_delete = self.left.len().min(k as usize);
-        self.left.drain(self.left.len() - num_to_delete..);
+        self.left.truncate(self.left.len() - num_to_delete);
         num_to_delete as i32
     }
 
     fn cursor_left(&mut self, k: i32) -> String {
-        let k = self.left.len().min(k as usize);
-        let removed_str: String = self.left.drain(self.left.len() - k..).collect();
-        self.right.insert_str(0, &removed_str);
-        let num_to_return = self.left.len().min(10);
-        self.left[self.left.len() - num_to_return..].to_string()
+        let k = k as usize;
+        for _ in 0..k {
+            if let Some(c) = self.left.pop() {
+                self.right.push(c);
+            } else {
+                break;
+            }
+        }
+
+        self.left[self.left.len().saturating_sub(10)..].to_string()
     }
 
     fn cursor_right(&mut self, k: i32) -> String {
-        let k = self.right.len().min(k as usize);
-        let removed_str: String = self.right.drain(..k).collect();
-        self.left.push_str(&removed_str);
-        let num_to_return = self.left.len().min(10);
-        self.left[self.left.len() - num_to_return..].to_string()
+        let k = k as usize;
+        for _ in 0..k {
+            if let Some(c) = self.right.pop() {
+                self.left.push(c);
+            } else {
+                break;
+            }
+        }
+
+        self.left[self.left.len().saturating_sub(10)..].to_string()
     }
 }
 /**
