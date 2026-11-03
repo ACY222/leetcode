@@ -21,12 +21,12 @@ impl Solution {
 }
 
 fn can_finish(dist: &[i32], hour: f64, speed: f64) -> bool {
-    let mut total_time = 0.;
-
-    for i in 0..dist.len() - 1 {
-        total_time += (dist[i] as f64 / speed).ceil();
+    let mut total_time: f64 = 0.;
+    for &d in dist {
+        total_time = total_time.ceil();
+        total_time += d as f64 / speed;
     }
 
-    total_time + *dist.last().unwrap() as f64 / speed <= hour
+    total_time <= hour
 }
 // @leet end
