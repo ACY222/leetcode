@@ -4,16 +4,19 @@ impl Solution {
         let n = n as usize;
         let delay = delay as usize;
         let forget = forget as usize;
-        const MOD: i64 = 1_000_000_007;
-        let mut known_people = vec![0i64; n];
-        let mut new_people = vec![0i64; n];
+        const MOD: i32 = 1_000_000_007;
+        let mut known_people = vec![0; n];
+        let mut new_people = vec![0; n];
         new_people[0] = 1;
         known_people[0] = 1;
 
         for today in 0..n {
             if today > 0 {
                 known_people[today] =
-                    (new_people[today] + known_people[today - 1] + known_people[today] + MOD) % MOD;
+                    (new_people[today] + known_people[today] + known_people[today - 1]) % MOD;
+                if known_people[today] < 0 {
+                    known_people[today] += MOD;
+                }
             }
             // share with new people
             for date in today + delay..n.min(today + forget) {
