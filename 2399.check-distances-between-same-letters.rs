@@ -4,18 +4,15 @@ impl Solution {
         let bytes = s.into_bytes();
         let mut distance = distance;
 
-        for dist in (0..bytes.len()).rev() {
+        for dist in 0..bytes.len() {
             let byte = bytes[dist];
             let idx = (byte - b'a') as usize;
             let dist = dist as i32;
 
-            if distance[idx] >= 0 {
-                distance[idx] -= dist + 100;
-            } else if distance[idx] < 0 {
+            if distance[idx] < 100 {
                 distance[idx] += dist + 101;
-                if distance[idx] != 0 {
-                    return false;
-                }
+            } else if distance[idx] != dist + 100 {
+                return false;
             }
         }
 
