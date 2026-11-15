@@ -11,9 +11,8 @@ impl Solution {
             if num % 2 == 0 {
                 even += 1;
             } else {
-                let even_prev = even;
-                even = odd;
-                odd = even_prev + 1;
+                std::mem::swap(&mut even, &mut odd);
+                odd += 1;
             }
 
             sum = (sum + odd) % MOD;
