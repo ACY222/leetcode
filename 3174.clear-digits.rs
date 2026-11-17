@@ -1,17 +1,20 @@
 // @leet start
 impl Solution {
     pub fn clear_digits(s: String) -> String {
-        let bytes = s.into_bytes();
-        let mut res: Vec<u8> = Vec::with_capacity(bytes.len());
-        for byte in bytes {
-            if byte.is_ascii_digit() {
-                res.pop();
+        let mut bytes = s.into_bytes();
+        let mut k = 0;
+
+        for i in 0..bytes.len() {
+            if bytes[i].is_ascii_digit() {
+                k -= 1;
             } else {
-                res.push(byte);
+                bytes[k] = bytes[i];
+                k += 1;
             }
         }
 
-        String::from_utf8(res).unwrap()
+        bytes.truncate(k);
+        String::from_utf8(bytes).unwrap()
     }
 }
 // @leet end
