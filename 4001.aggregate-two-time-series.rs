@@ -5,13 +5,12 @@ impl Solution {
         let mut i = 0;
         let mut j = 0;
         while i < series1.len() && j < series2.len() {
-            if series1[i][0] < series2[j][0] {
+            if series1[i][0] <= series2[j][0] {
                 res.push(vec![series1[i][0], series1[i][1] + series2[j][1]]);
+                if series1[i][0] == series2[j][0] {
+                    j += 1;
+                }
                 i += 1;
-            } else if series1[i][0] == series2[j][0] {
-                res.push(vec![series1[i][0], series1[i][1] + series2[j][1]]);
-                i += 1;
-                j += 1;
             } else {
                 res.push(vec![series2[j][0], series1[i][1] + series2[j][1]]);
                 j += 1;
@@ -19,17 +18,16 @@ impl Solution {
         }
 
         while i < series1.len() {
-            res.push(vec![series1[i][0], series1[i][1]]);
+            res.push(series1[i].clone());
             i += 1;
         }
 
         while j < series2.len() {
-            res.push(vec![series2[j][0], series2[j][1]]);
+            res.push(series2[j].clone());
             j += 1;
         }
 
         res
-
     }
 }
 // @leet end
