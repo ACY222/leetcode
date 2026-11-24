@@ -24,16 +24,15 @@ impl TimeMap {
     }
 
     fn get(&self, key: String, timestamp: i32) -> String {
-        if !self.map.contains_key(&key) {
-            return "".to_string();
-        }
+        let Some(entries) = self.map.get(&key) else {
+            return String::new();
+        };
 
-        let vec = self.map.get(&key).unwrap();
-        let p = vec.partition_point(|item| item.0 <= timestamp);
+        let p = entries.partition_point(|(ts, _)| *ts <= timestamp);
         if p == 0 {
-            "".to_string()
+            String::new()
         } else {
-            vec[p - 1].1.clone()
+            entries[p - 1].1.clone()
         }
     }
 }
