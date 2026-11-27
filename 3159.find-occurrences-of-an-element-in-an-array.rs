@@ -4,18 +4,19 @@ impl Solution {
         let mut indices = Vec::with_capacity(queries.len());
         for (idx, &num) in nums.iter().enumerate() {
             if num == x {
-                indices.push(idx as i32);
+                indices.push(idx);
             }
         }
 
         let mut answers = Vec::with_capacity(queries.len());
-        let max_idx = indices.len() as i32;
+        let max_idx = indices.len();
 
         for query in queries {
+            let query = query as usize;
             if query > max_idx {
                 answers.push(-1);
             } else {
-                answers.push(indices[query as usize - 1]);
+                answers.push(indices[query - 1] as i32);
             }
         }
 
